@@ -26,7 +26,9 @@ const state = {
   connCounter: 0,
   clipboard: null,
   contextNode: null,
-  rightClickPos: { x: 0, y: 0 }
+  rightClickPos: { x: 0, y: 0 },
+  minimapVisible: false,
+  themeMode: 'dark'
 };
 
 // ===== ELEMENTS =====
@@ -48,9 +50,14 @@ function init() {
   setupContextMenus();
   setupDrawing();
   setupKeyboard();
+  setupSearchPanel();
+  setupShortcutsModal();
+  setupMinimap();
+  setupThemeToggle();
   loadFromStorage();
   renderConnections();
   updateStatus();
+  loadThemePreference();
 }
 
 // ===== RESIZE CANVASES =====
@@ -942,6 +949,16 @@ function setupTopbar() {
     renderConnections();
   });
 
+  
+// Add this inside setupTopbar() or at the end of the init() sequence
+const drawkiBtn = document.getElementById('btn-drawkiboard');
+if (drawkiBtn) {
+  drawkiBtn.addEventListener('click', () => {
+    // Auto-save before leaving to prevent work loss
+    autoSave();
+    window.location.href = 'Drawkiboard.html';
+  });
+}
   // nav-support scroll
   document.getElementById('nav-support-btn').addEventListener('click', () => {
     showToast('Support via UPI — anmolsri@fam');

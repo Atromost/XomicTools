@@ -889,3 +889,24 @@ body.focus-mode .canvas-wrapper {
 /* Pan cursor */
 body.panning { cursor: grabbing !important; }
 body.panning * { cursor: grabbing !important; }
+/* DrawkiBoard Button Styling */
+#btn-drawkiboard {
+  background: rgba(205, 255, 0, 0.05);
+  border: 1px solid rgba(205, 255, 0, 0.15);
+  color: var(--accent);
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#btn-drawkiboard:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 15px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+#btn-drawkiboard svg {
+  margin-right: 6px;
+  filter: drop-shadow(0 0 2px var(--accent-glow));
+}
