@@ -8,7 +8,8 @@
 
 ---
 
-## 📸 Visual Guid
+## Visual Guid 
+
 For the best visual representation of the workspace, focus on these key views:
 <img width="1358" height="644" alt="msedge_KUAj9lWTLk" src="https://github.com/user-attachments/assets/b366c509-c36c-4fb0-b765-8269c92f3e36" />
 
@@ -43,7 +44,7 @@ For the best visual representation of the workspace, focus on these key views:
 
 ---
 
-## ⌨️ Shortcuts
+## ⌨️ Shortcuts for Flowly Notes
 
 | Key | Action |
 | :--- | :--- |
@@ -56,5 +57,14 @@ For the best visual representation of the workspace, focus on these key views:
 
 ---
 
-> **Note:** Flowly Notes uses hardware acceleration for smooth panning across large canvases.
+## DrawkiBoard 
+
+<img width="230" height="41" alt="image" src="https://github.com/user-attachments/assets/362fc028-5d8b-4463-8ba1-5827ec1c96dc" />
+
+Here,You Redirect To DrawkiBoard Page That is a online whiteboard !
+<img width="1358" height="644" alt="image" src="https://github.com/user-attachments/assets/41785da3-8851-43a7-a5d0-798635c5b31f" />
+
+
+
+> **Note:** Flowly Notes and Drawkiboard uses hardware acceleration for smooth panning across large canvases.
 
