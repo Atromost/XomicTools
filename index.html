@@ -31,6 +31,7 @@
     background: #080808;
     position: relative;
     cursor: none;
+    position: relative;
   }
 
   /* CUSTOM CURSOR */
@@ -195,7 +196,7 @@
     font-family: 'Space Mono', monospace;
     font-size: 15px;
     font-weight: 700;
-    cursor: none;
+    cursor: pointer;
     text-decoration: none;
     letter-spacing: 0.02em;
     overflow: hidden;
@@ -294,7 +295,7 @@
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
     font-weight: 500;
-    cursor: none;
+    cursor: pointer;
     text-decoration: none;
     letter-spacing: 0.02em;
     border-radius: 8px;
@@ -450,6 +451,57 @@
     to { transform: rotate(360deg); }
   }
 
+  /* GITHUB BUTTON */
+  .github-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+    animation: enterDown 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .github-btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.35);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .github-btn svg { flex-shrink: 0; transition: transform 0.3s; }
+  .github-btn:hover svg:first-child { transform: rotate(15deg) scale(1.1); }
+  .gh-stars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--flowly-accent);
+    background: rgba(200,241,53,0.08);
+    border: 1px solid rgba(200,241,53,0.25);
+    border-radius: 999px;
+    padding: 2px 7px;
+    margin-left: 2px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .github-btn:hover .gh-stars {
+    background: rgba(200,241,53,0.15);
+    border-color: rgba(200,241,53,0.5);
+  }
+
   /* enter animation */
   .wrapper { animation: enterDown 0.8s cubic-bezier(0.22,1,0.36,1) both; }
   @keyframes enterDown {
@@ -601,6 +653,18 @@
 <div class="side-label left">FLOWLY NOTES</div>
 <div class="side-label right">DRAWKIBOARD</div>
 
+<!-- GITHUB BUTTON -->
+<a href="https://github.com/Atromost/Flowly-Notes" target="_blank" class="github-btn" title="Flowly Notes on GitHub">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+  </svg>
+  <span>GitHub</span>
+  <div class="gh-stars">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    OSS
+  </div>
+</a>
+
 <!-- MAIN CONTENT -->
 <div class="wrapper">
   <div class="title-block">
@@ -613,7 +677,7 @@
 
   <div class="buttons-row">
     <!-- FLOWLY NOTES BUTTON -->
-    <a href="#" class="btn-flowly">
+    <a href="Flowlynotes.html" class="btn-flowly">
       <div class="scanline"></div>
       <span class="node-tag">v2.1</span>
       <!-- Flowly icon: node graph -->
@@ -633,7 +697,7 @@
 
     <!-- DRAWKI BUTTON -->
     <div class="btn-drawki-wrap">
-      <a href="#" class="btn-drawki" id="drawkiBtn">
+      <a href="Drawkiboard.html" class="btn-drawki" id="drawkiBtn">
         <!-- floating badges -->
         <div class="badge yellow">✦</div>
         <div class="badge pink">●</div>
