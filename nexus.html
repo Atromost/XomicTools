@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Developer Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Cabinet+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Base palette — deep navy with warm undertones */
+  --bg0: #0a0d14;
+  --bg1: #0f131c;
+  --bg2: #141924;
+  --bg3: #1a2030;
+  --bg4: #202840;
+
+  /* Semantic surfaces */
+  --surface: var(--bg1);
+  --surface2: var(--bg2);
+  --surface3: var(--bg3);
+
+  /* Borders */
+  --bd: rgba(120,140,180,0.08);
+  --bd2: rgba(120,140,180,0.14);
+  --bd3: rgba(120,140,180,0.22);
+
+  /* Accent system — carefully chosen triadic palette */
+  --mint:   #00d9a0;   /* primary — vibrant teal-mint */
+  --mint-d: #009e75;
+  --mint-bg: rgba(0,217,160,0.08);
+  --mint-bd: rgba(0,217,160,0.22);
+
+  --sky:    #38b4f8;   /* secondary — cool sky blue */
+  --sky-d:  #1e8ecb;
+  --sky-bg: rgba(56,180,248,0.08);
+  --sky-bd: rgba(56,180,248,0.20);
+
+  --amber:  #f5a623;   /* tertiary — warm amber */
+  --amber-d:#c07a0a;
+  --amber-bg: rgba(245,166,35,0.08);
+  --amber-bd: rgba(245,166,35,0.22);
+
+  --rose:   #ff5f7e;   /* danger / error */
+  --rose-bg: rgba(255,95,126,0.08);
+  --rose-bd: rgba(255,95,126,0.22);
+
+  --violet: #a855f7;   /* special */
+  --violet-bg: rgba(168,85,247,0.08);
+
+  /* Text scale */
+  --t1: #e8edf8;
+  --t2: #8e99b0;
+  --t3: #4a5368;
+  --t4: #2a3245;
+
+  /* Typography */
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Cabinet Grotesk', sans-serif;
+
+  /* Radii */
+  --r1: 6px;
+  --r2: 10px;
+  --r3: 14px;
+
+  /* Transitions */
+  --ease: cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg0);
+  color: var(--t1);
+  font-family: var(--sans);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Ambient mesh */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 0%, rgba(0,217,160,0.03) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 40% at 85% 100%, rgba(56,180,248,0.03) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grid noise texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='none'/%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Ccircle cx='0' cy='0' r='0.5' fill='rgba(255,255,255,0.015)'/%3E%3Ccircle cx='40' cy='0' r='0.5' fill='rgba(255,255,255,0.015)'/%3E%3Ccircle cx='0' cy='40' r='0.5' fill='rgba(255,255,255,0.015)'/%3E%3Ccircle cx='40' cy='40' r='0.5' fill='rgba(255,255,255,0.015)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ====== LAYOUT ====== */
+.shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  grid-template-rows: 48px 1fr;
+  min-height: 100vh;
+}
+
+/* ====== TOPBAR ====== */
+.topbar {
+  grid-column: 1 / -1;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 12px;
+  border-bottom: 1px solid var(--bd);
+  background: rgba(10,13,20,0.85);
+  backdrop-filter: blur(24px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-hex {
+  width: 26px;
+  height: 26px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-hex svg { display: block; }
+
+.brand-name {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--t1);
+}
+
+.brand-name em {
+  color: var(--mint);
+  font-style: normal;
+}
+
+.topbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meta-chip {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--t3);
+  padding: 3px 8px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r1);
+}
+
+.meta-chip.live {
+  color: var(--mint);
+  border-color: var(--mint-bd);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mint);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.8)} }
+
+/* ====== SIDEBAR ====== */
+.sidebar {
+  border-right: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  gap: 2px;
+  background: rgba(9,12,18,0.5);
+  position: sticky;
+  top: 48px;
+  height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+.nav-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r2);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--t3);
+  transition: all 0.18s var(--ease);
+  position: relative;
+}
+
+.nav-icon:hover {
+  color: var(--t2);
+  background: var(--bg3);
+  border-color: var(--bd2);
+}
+
+.nav-icon.on {
+  color: var(--mint);
+  background: var(--mint-bg);
+  border-color: var(--mint-bd);
+}
+
+.nav-icon .tip {
+  position: absolute;
+  left: 48px;
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  background: var(--bg3);
+  border: 1px solid var(--bd2);
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: var(--r1);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.14s var(--ease);
+  z-index: 200;
+}
+
+.nav-icon:hover .tip { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+.nav-sep {
+  width: 24px;
+  height: 1px;
+  background: var(--bd);
+  margin: 4px 0;
+}
+
+/* ====== MAIN ====== */
+.main {
+  padding: 20px;
+  overflow-y: auto;
+  height: calc(100vh - 48px);
+}
+
+/* ====== PANELS ====== */
+.view { display: none; }
+.view.on { display: block; animation: fadeUp 0.2s var(--ease); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.panel-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r2);
+  background: var(--mint-bg);
+  border: 1px solid var(--mint-bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mint);
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -0.01em;
+}
+
+.panel-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--t3);
+  background: var(--bg3);
+  border: 1px solid var(--bd);
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ====== GRID ====== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+/* ====== CARD ====== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--bd);
+  border-radius: var(--r3);
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: var(--bd2); }
+.card:focus-within { border-color: var(--mint-bd); }
+
+.card-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--t3);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-label::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 10px;
+  background: var(--mint);
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+/* ====== FORM ELEMENTS ====== */
+textarea, input[type="text"], input[type="number"], select {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r2);
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  padding: 9px 12px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  line-height: 1.6;
+}
+
+textarea:focus, input:focus, select:focus {
+  border-color: var(--mint-bd);
+  background: var(--bg3);
+}
+
+textarea { min-height: 82px; }
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a5368'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+/* ====== BUTTONS ====== */
+.row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--r1);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  border: 1px solid var(--bd2);
+  background: var(--bg3);
+  color: var(--t2);
+  transition: all 0.15s var(--ease);
+  white-space: nowrap;
+}
+
+.btn:hover { background: var(--bg4); color: var(--t1); border-color: var(--bd3); }
+.btn:active { transform: scale(0.96); }
+
+.btn.p {
+  background: var(--mint-bg);
+  color: var(--mint);
+  border-color: var(--mint-bd);
+}
+.btn.p:hover { background: rgba(0,217,160,0.15); }
+
+.btn.s {
+  background: var(--sky-bg);
+  color: var(--sky);
+  border-color: var(--sky-bd);
+}
+.btn.s:hover { background: rgba(56,180,248,0.15); }
+
+.btn.a {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border-color: var(--amber-bd);
+}
+
+.btn.d {
+  color: var(--rose);
+  border-color: var(--rose-bd);
+  background: var(--rose-bg);
+}
+
+/* ====== OUTPUT ====== */
+.out {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  padding: 9px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--mint);
+  min-height: 40px;
+  word-break: break-all;
+  line-height: 1.7;
+  margin-top: 10px;
+  white-space: pre-wrap;
+  transition: border-color 0.2s;
+}
+
+.out:hover { border-color: var(--bd2); cursor: default; }
+
+/* ====== STATS ====== */
+.stats {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.stat {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--t3);
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+
+.stat span { color: var(--sky); font-weight: 500; }
+
+/* ====== RANGE ====== */
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.range-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--t3);
+  min-width: 56px;
+}
+
+input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--bg4);
+  border: none;
+  border-radius: 1px;
+  outline: none;
+  padding: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  background: var(--mint);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(0,217,160,0.15);
+  transition: box-shadow 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 5px rgba(0,217,160,0.22);
+}
+
+.range-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mint);
+  min-width: 26px;
+  text-align: right;
+}
+
+/* ====== TIMER ====== */
+.timer-face {
+  font-family: var(--mono);
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--mint);
+  text-align: center;
+  padding: 20px 0 14px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.timer-face small { font-size: 22px; color: var(--t2); }
+.timer-face .ms { font-size: 13px; color: var(--t3); }
+
+.progress {
+  height: 2px;
+  background: var(--bg3);
+  border-radius: 1px;
+  overflow: hidden;
+  margin: 4px 0 14px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sky), var(--mint));
+  border-radius: 1px;
+  transition: width 1s linear;
+}
+
+/* ====== CLOCK ====== */
+.clock-face {
+  text-align: center;
+  padding: 18px 0 14px;
+}
+
+.clock-time {
+  font-family: var(--mono);
+  font-size: 50px;
+  font-weight: 300;
+  color: var(--mint);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.clock-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  margin-top: 5px;
+}
+
+.world-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.wc {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  padding: 8px 14px;
+  text-align: center;
+}
+
+.wc-city {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--t3);
+}
+
+.wc-time {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--t1);
+  margin-top: 3px;
+}
+
+/* ====== COLOR TOOL ====== */
+input[type="color"] {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--bd2);
+  border-radius: var(--r2);
+  cursor: pointer;
+  padding: 3px;
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+.color-preview {
+  height: 58px;
+  border-radius: var(--r2);
+  border: 1px solid var(--bd);
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.cfmt {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r1);
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.cfmt:hover { border-color: var(--mint-bd); }
+.cfmt-label { font-family: var(--mono); font-size: 9px; color: var(--t3); margin-bottom: 2px; }
+.cfmt-val { font-family: var(--mono); font-size: 10.5px; color: var(--mint); }
+
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r1);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.swatch:hover { transform: scale(1.18); border-color: rgba(255,255,255,0.3); }
+
+/* ====== JSON ====== */
+.json-view {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.8;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  padding: 10px 12px;
+  max-height: 260px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--t1);
+  margin-top: 10px;
+}
+
+.jk { color: #ff79a8; }
+.js { color: #a8e6a0; }
+.jn { color: var(--sky); }
+.jb { color: var(--amber); }
+.jnull { color: var(--t3); }
+
+/* ====== GENERATORS ====== */
+.gen-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+
+.gen-item {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--mint);
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r1);
+  padding: 7px 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.gen-item:hover { border-color: var(--mint-bd); background: var(--mint-bg); }
+.gen-copy { color: var(--t4); transition: color 0.15s; }
+.gen-item:hover .gen-copy { color: var(--mint); }
+
+.rn-big {
+  text-align: center;
+  padding: 18px 0;
+  font-family: var(--mono);
+  font-size: 52px;
+  font-weight: 300;
+  color: var(--mint);
+  letter-spacing: -0.02em;
+}
+
+/* ====== UNIT CONVERTER ====== */
+/* ====== NOTES ====== */
+.note-wrap {
+  background: var(--surface);
+  border: 1px solid var(--bd);
+  border-radius: var(--r3);
+  overflow: hidden;
+}
+
+.note-area {
+  width: 100%;
+  min-height: 240px;
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--t1);
+  line-height: 1.8;
+  resize: vertical;
+  border: none;
+  background: transparent;
+  outline: none;
+}
+
+.note-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-top: 1px solid var(--bd);
+  background: var(--bg2);
+}
+
+.note-wc { font-family: var(--mono); font-size: 10px; color: var(--t3); }
+
+/* ====== MORSE ====== */
+.morse-out {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  word-break: break-word;
+  line-height: 2.2;
+  margin-top: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+}
+
+/* ====== IMAGE TOOL ====== */
+.dropzone {
+  border: 1.5px dashed var(--bd2);
+  border-radius: var(--r3);
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg2);
+}
+
+.dropzone:hover, .dropzone.drag {
+  border-color: var(--mint-bd);
+  background: var(--mint-bg);
+}
+
+.dropzone-text { font-family: var(--mono); font-size: 11px; color: var(--t3); margin-top: 10px; }
+
+canvas { max-width: 100%; border-radius: var(--r2); margin-top: 10px; display: block; }
+
+/* ====== STOPWATCH LAPS ====== */
+.laps { max-height: 110px; overflow-y: auto; margin-top: 8px; display: flex; flex-direction: column; gap: 3px; }
+
+.lap-item {
+  font-family: var(--mono);
+  font-size: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 9px;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+}
+
+/* ====== TOAST ====== */
+.toast-zone {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg3);
+  border: 1px solid var(--bd2);
+  border-left: 3px solid var(--mint);
+  border-radius: var(--r2);
+  padding: 9px 14px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--t1);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  animation: toastIn 0.2s var(--ease), toastOut 0.3s 1.8s var(--ease) forwards;
+  backdrop-filter: blur(12px);
+}
+
+@keyframes toastIn { from{transform:translateY(8px);opacity:0} to{transform:none;opacity:1} }
+@keyframes toastOut { to{transform:translateY(-4px);opacity:0} }
+
+.toast.err { border-left-color: var(--rose); }
+.toast.warn { border-left-color: var(--amber); }
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t4); }
+::selection { background: rgba(0,217,160,0.2); }
+
+/* ====== CONTRAST CHECKER ====== */
+.contrast-preview {
+  padding: 16px;
+  border-radius: var(--r2);
+  border: 1px solid var(--bd);
+  font-family: var(--mono);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* ====== SAVE STATUS ====== */
+.save-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mint);
+  display: inline-block;
+  margin-right: 4px;
+  transition: background 0.3s;
+}
+
+.save-dot.saving { background: var(--amber); }
+
+/* ====== CHECKBOX ====== */
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--t2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.check-label input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--mint);
+  cursor: pointer;
+}
+
+/* Wide card */
+.wide { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-hex">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <path d="M13 2L24 7.5V18.5L13 24L2 18.5V7.5L13 2Z" stroke="#00d9a0" stroke-width="1.5" stroke-linejoin="round" fill="rgba(0,217,160,0.06)"/>
+          <circle cx="13" cy="13" r="3" fill="#00d9a0" opacity="0.8"/>
+        </svg>
+      </div>
+      <span class="brand-name">NEX<em>US</em></span>
+    </div>
+    <div class="topbar-meta">
+      <span class="meta-chip live"><span class="pulse"></span>ONLINE</span>
+      <span class="meta-chip" id="tb-time">--:--</span>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <button class="nav-icon on" onclick="go('text')" id="ni-text" title="Text Tools">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 11h16M4 15h10"/></svg>
+      <span class="tip">Text</span>
+    </button>
+    <button class="nav-icon" onclick="go('color')" id="ni-color">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 4 8A9 9 0 0 1 8 11 9 9 0 0 1 12 3z"/><path d="M3 12h18"/></svg>
+      <span class="tip">Color</span>
+    </button>
+    <button class="nav-icon" onclick="go('encode')" id="ni-encode">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span class="tip">Encode</span>
+    </button>
+    <button class="nav-icon" onclick="go('json')" id="ni-json">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 0 0-2 2v3m0 8v3a2 2 0 0 0 2 2h3M21 8V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3"/></svg>
+      <span class="tip">JSON</span>
+    </button>
+    <button class="nav-icon" onclick="go('gen')" id="ni-gen">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span class="tip">Generate</span>
+    </button>
+    <button class="nav-icon" onclick="go('units')" id="ni-units">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H4L4 20H9M15 3H20L20 20H15M9 12H15"/></svg>
+      <span class="tip">Convert</span>
+    </button>
+    <div class="nav-sep"></div>
+    <button class="nav-icon" onclick="go('timer')" id="ni-timer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 13.5"/></svg>
+      <span class="tip">Timer</span>
+    </button>
+    <button class="nav-icon" onclick="go('notes')" id="ni-notes">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      <span class="tip">Notes</span>
+    </button>
+    <button class="nav-icon" onclick="go('image')" id="ni-image">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span class="tip">Image</span>
+    </button>
+    <button class="nav-icon" onclick="go('morse')" id="ni-morse">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M20.49 3.51a14 14 0 0 1 0 19.8M3.51 20.49a14 14 0 0 1 0-19.8"/></svg>
+      <span class="tip">Morse</span>
+    </button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ===== TEXT ===== -->
+    <div class="view on" id="view-text">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 11h16M4 15h10"/></svg></div>
+        <span class="panel-title">Text Tools</span>
+        <span class="panel-tag">transform · analyze</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">Analyzer</div>
+          <textarea id="ti" placeholder="Paste or type text..." oninput="analyzeText()"></textarea>
+          <div class="stats" id="stats">
+            <div class="stat">Chars <span id="sc">0</span></div>
+            <div class="stat">Words <span id="sw">0</span></div>
+            <div class="stat">Lines <span id="sl">0</span></div>
+            <div class="stat">Sentences <span id="ss">0</span></div>
+            <div class="stat">~Read <span id="sr">0m</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Transform</div>
+          <textarea id="trx-in" placeholder="Input text..."></textarea>
+          <div class="row">
+            <button class="btn" onclick="trx('upper')">UPPER</button>
+            <button class="btn" onclick="trx('lower')">lower</button>
+            <button class="btn" onclick="trx('title')">Title</button>
+            <button class="btn" onclick="trx('camel')">camelCase</button>
+            <button class="btn" onclick="trx('snake')">snake_case</button>
+            <button class="btn" onclick="trx('kebab')">kebab-case</button>
+            <button class="btn" onclick="trx('rev')">Reverse</button>
+            <button class="btn" onclick="trx('trim')">Trim</button>
+          </div>
+          <div class="out" id="trx-out">—</div>
+          <div class="row"><button class="btn p" onclick="cp('trx-out')">Copy Result</button></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Find & Replace</div>
+          <textarea id="fr-t" placeholder="Your text..."></textarea>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">
+            <input type="text" id="fr-f" placeholder="Find...">
+            <input type="text" id="fr-r" placeholder="Replace with...">
+          </div>
+          <div class="row">
+            <button class="btn p" onclick="fr()">Replace All</button>
+            <button class="btn" onclick="frCount()">Count</button>
+          </div>
+          <div class="out" id="fr-out">—</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Lorem Generator</div>
+          <div class="range-row">
+            <span class="range-label">Paragraphs</span>
+            <input type="range" id="lorem-n" min="1" max="10" value="3" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">3</span>
+          </div>
+          <div class="row">
+            <button class="btn p" onclick="lorem()">Generate</button>
+            <button class="btn" onclick="cp('lorem-out')">Copy</button>
+          </div>
+          <div class="out" id="lorem-out" style="max-height:130px;overflow-y:auto;">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== COLOR ===== -->
+    <div class="view" id="view-color">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 4 8A9 9 0 0 1 8 11 9 9 0 0 1 12 3z"/></svg></div>
+        <span class="panel-title">Color Tools</span>
+        <span class="panel-tag">convert · palette · contrast</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">Color Picker</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="color" id="cp-pick" value="#00d9a0" oninput="colorUp(this.value)">
+            <input type="text" id="cp-hex" value="#00d9a0" oninput="colorFromHex(this.value)" placeholder="#RRGGBB" style="width:120px;">
+          </div>
+          <div class="color-preview" id="cp-prev" style="background:#00d9a0;"></div>
+          <div class="color-grid" id="cp-fmts"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Palette Generator</div>
+          <div class="row" style="margin-top:0;margin-bottom:10px;">
+            <button class="btn p" onclick="genPal('comp')">Complementary</button>
+            <button class="btn" onclick="genPal('tri')">Triadic</button>
+            <button class="btn" onclick="genPal('ana')">Analogous</button>
+            <button class="btn" onclick="genPal('mono')">Mono</button>
+          </div>
+          <div class="swatches" id="pal-out"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Gradient Builder</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+            <input type="color" id="g1" value="#00d9a0" oninput="buildGrad()">
+            <input type="color" id="g2" value="#38b4f8" oninput="buildGrad()">
+            <select id="gdir" onchange="buildGrad()" style="flex:1;">
+              <option value="to right">→ Horizontal</option>
+              <option value="to bottom">↓ Vertical</option>
+              <option value="135deg">↘ Diagonal</option>
+            </select>
+          </div>
+          <div id="g-prev" style="height:64px;border-radius:var(--r2);border:1px solid var(--bd);transition:all 0.3s;"></div>
+          <div class="out" id="g-css" style="margin-top:8px;font-size:10px;"></div>
+          <div class="row"><button class="btn p" onclick="cp('g-css')">Copy CSS</button></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Contrast Checker</div>
+          <div style="display:flex;gap:10px;margin-bottom:10px;">
+            <div style="flex:1;">
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:6px;letter-spacing:0.1em;">FOREGROUND</div>
+              <input type="color" id="cf" value="#ffffff" oninput="contrast()">
+            </div>
+            <div style="flex:1;">
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:6px;letter-spacing:0.1em;">BACKGROUND</div>
+              <input type="color" id="cb" value="#0a0d14" oninput="contrast()">
+            </div>
+          </div>
+          <div class="contrast-preview" id="cp-area">Preview Text Here</div>
+          <div class="out" id="cp-res"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ENCODE ===== -->
+    <div class="view" id="view-encode">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <span class="panel-title">Encode / Hash</span>
+        <span class="panel-tag">base64 · url · rot13 · html</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">Base64</div>
+          <textarea id="b64i" placeholder="Input text..."></textarea>
+          <div class="row">
+            <button class="btn p" onclick="b64('enc')">Encode</button>
+            <button class="btn" onclick="b64('dec')">Decode</button>
+            <button class="btn" onclick="cp('b64o')">Copy</button>
+          </div>
+          <div class="out" id="b64o">—</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">URL Encode</div>
+          <textarea id="urli" placeholder="Input text or URL..."></textarea>
+          <div class="row">
+            <button class="btn p" onclick="urlEnc('enc')">Encode</button>
+            <button class="btn" onclick="urlEnc('dec')">Decode</button>
+            <button class="btn" onclick="cp('urlo')">Copy</button>
+          </div>
+          <div class="out" id="urlo">—</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Caesar / ROT Cipher</div>
+          <textarea id="roti" placeholder="Input text..."></textarea>
+          <div class="range-row" style="margin:8px 0;">
+            <span class="range-label">Shift</span>
+            <input type="range" id="rot-n" min="1" max="25" value="13" oninput="rotGo();this.nextElementSibling.textContent=this.value">
+            <span class="range-val">13</span>
+          </div>
+          <div class="row">
+            <button class="btn p" onclick="rotGo()">Apply</button>
+            <button class="btn" onclick="cp('roto')">Copy</button>
+          </div>
+          <div class="out" id="roto">—</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">HTML Entity Encode</div>
+          <textarea id="htmli" placeholder="<b>Hello &amp; World</b>"></textarea>
+          <div class="row">
+            <button class="btn p" onclick="htmlEnc('enc')">Encode</button>
+            <button class="btn" onclick="htmlEnc('dec')">Decode</button>
+            <button class="btn" onclick="cp('htmlo')">Copy</button>
+          </div>
+          <div class="out" id="htmlo">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== JSON ===== -->
+    <div class="view" id="view-json">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m0 8v3a2 2 0 0 0 2 2h3M21 8V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3"/></svg></div>
+        <span class="panel-title">JSON Tools</span>
+        <span class="panel-tag">format · validate · minify · sort</span>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <div class="card-label">JSON Formatter</div>
+          <textarea id="jsoni" placeholder='{"name":"NEXUS","version":2,"active":true}' style="min-height:100px;"></textarea>
+          <div class="row">
+            <button class="btn p" onclick="jsonFmt('pretty')">Prettify</button>
+            <button class="btn" onclick="jsonFmt('minify')">Minify</button>
+            <button class="btn s" onclick="jsonFmt('validate')">Validate</button>
+            <button class="btn" onclick="jsonFmt('sort')">Sort Keys</button>
+            <button class="btn" onclick="cp2('json-out')">Copy</button>
+            <button class="btn d" onclick="document.getElementById('jsoni').value='';document.getElementById('json-out').innerHTML='—'">Clear</button>
+          </div>
+          <div class="json-view" id="json-out">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GENERATORS ===== -->
+    <div class="view" id="view-gen">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <span class="panel-title">Generators</span>
+        <span class="panel-tag">uuid · password · random</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">UUID v4 Generator</div>
+          <div class="range-row">
+            <span class="range-label">Count</span>
+            <input type="range" id="uuid-n" min="1" max="10" value="5" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">5</span>
+          </div>
+          <div class="row">
+            <button class="btn p" onclick="genUUID()">Generate</button>
+            <button class="btn" onclick="copyAll('uuid-list')">Copy All</button>
+          </div>
+          <div class="gen-list" id="uuid-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Password Generator</div>
+          <div class="range-row">
+            <span class="range-label">Length</span>
+            <input type="range" id="pw-len" min="6" max="64" value="20" oninput="this.nextElementSibling.textContent=this.value;genPW()">
+            <span class="range-val">20</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+            <label class="check-label"><input type="checkbox" id="pw-up" checked onchange="genPW()"> Uppercase</label>
+            <label class="check-label"><input type="checkbox" id="pw-num" checked onchange="genPW()"> Numbers</label>
+            <label class="check-label"><input type="checkbox" id="pw-sym" checked onchange="genPW()"> Symbols</label>
+          </div>
+          <div class="row"><button class="btn p" onclick="genPW()">Regenerate</button></div>
+          <div class="gen-list" id="pw-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Random Number</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:5px;letter-spacing:0.1em;">MIN</div>
+              <input type="number" id="rn-min" value="1">
+            </div>
+            <div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:5px;letter-spacing:0.1em;">MAX</div>
+              <input type="number" id="rn-max" value="100">
+            </div>
+          </div>
+          <button class="btn p" onclick="genRand()">Roll</button>
+          <div class="rn-big" id="rn-out">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== UNITS ===== -->
+    <div class="view" id="view-units">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H4L4 20H9M15 3H20L20 20H15M9 12H15"/></svg></div>
+        <span class="panel-title">Unit Converter</span>
+        <span class="panel-tag">length · weight · temp · data</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">Length</div>
+          <input type="number" id="len-v" value="1" oninput="cvLen()">
+          <select id="len-u" onchange="cvLen()" style="margin-top:8px;">
+            <option value="m">Meters</option><option value="km">Kilometers</option>
+            <option value="cm">Centimeters</option><option value="mm">Millimeters</option>
+            <option value="ft">Feet</option><option value="in">Inches</option>
+            <option value="mi">Miles</option><option value="yd">Yards</option>
+          </select>
+          <div class="gen-list" id="len-out" style="margin-top:8px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Weight / Mass</div>
+          <input type="number" id="wt-v" value="1" oninput="cvWt()">
+          <select id="wt-u" onchange="cvWt()" style="margin-top:8px;">
+            <option value="kg">Kilograms</option><option value="g">Grams</option>
+            <option value="lb">Pounds</option><option value="oz">Ounces</option>
+            <option value="t">Metric Tons</option>
+          </select>
+          <div class="gen-list" id="wt-out" style="margin-top:8px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Temperature</div>
+          <input type="number" id="tmp-v" value="100" oninput="cvTmp()">
+          <select id="tmp-u" onchange="cvTmp()" style="margin-top:8px;">
+            <option value="c">Celsius</option>
+            <option value="f">Fahrenheit</option>
+            <option value="k">Kelvin</option>
+          </select>
+          <div class="gen-list" id="tmp-out" style="margin-top:8px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Data Size</div>
+          <input type="number" id="data-v" value="1" oninput="cvData()">
+          <select id="data-u" onchange="cvData()" style="margin-top:8px;">
+            <option value="b">Bytes</option><option value="kb">Kilobytes</option>
+            <option value="mb">Megabytes</option><option value="gb">Gigabytes</option>
+            <option value="tb">Terabytes</option>
+          </select>
+          <div class="gen-list" id="data-out" style="margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TIMER ===== -->
+    <div class="view" id="view-timer">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 13.5"/></svg></div>
+        <span class="panel-title">Timer &amp; Clock</span>
+        <span class="panel-tag">stopwatch · countdown · world</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">World Clock</div>
+          <div class="clock-face">
+            <div class="clock-time" id="clk-main">--:--:--</div>
+            <div class="clock-date" id="clk-date">Loading...</div>
+            <div class="world-row" id="wclocks"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Stopwatch</div>
+          <div class="timer-face" id="sw-d">00<small>:00</small><span class="ms">.00</span></div>
+          <div class="row" style="justify-content:center;">
+            <button class="btn p" id="sw-btn" onclick="swToggle()">▶ Start</button>
+            <button class="btn" onclick="swLap()">Lap</button>
+            <button class="btn d" onclick="swReset()">Reset</button>
+          </div>
+          <div class="laps" id="sw-laps"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Countdown Timer</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px;">
+            <div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;">HH</div>
+              <input type="number" id="cd-h" value="0" min="0" max="99" style="text-align:center;">
+            </div>
+            <div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;">MM</div>
+              <input type="number" id="cd-m" value="5" min="0" max="59" style="text-align:center;">
+            </div>
+            <div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;">SS</div>
+              <input type="number" id="cd-s" value="0" min="0" max="59" style="text-align:center;">
+            </div>
+          </div>
+          <div class="timer-face" id="cd-d" style="font-size:36px;padding:10px 0;">05:00</div>
+          <div class="progress"><div class="progress-fill" id="cd-bar" style="width:100%;"></div></div>
+          <div class="row" style="justify-content:center;">
+            <button class="btn p" id="cd-btn" onclick="cdToggle()">▶ Start</button>
+            <button class="btn d" onclick="cdReset()">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NOTES ===== -->
+    <div class="view" id="view-notes">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+        <span class="panel-title">Quick Notes</span>
+        <span class="panel-tag">auto-save · local storage</span>
+      </div>
+      <div class="note-wrap">
+        <textarea class="note-area" id="note" placeholder="Start typing... notes save automatically to your browser." oninput="noteSave()"></textarea>
+        <div class="note-bar">
+          <span class="note-wc">
+            <span class="save-dot" id="save-dot"></span>
+            <span id="note-wc">0 words · 0 chars</span>
+          </span>
+          <div class="row" style="margin:0;">
+            <button class="btn" onclick="cpNote()">Copy</button>
+            <button class="btn" onclick="dlNote()">Download .txt</button>
+            <button class="btn d" onclick="clearNote()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== IMAGE ===== -->
+    <div class="view" id="view-image">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <span class="panel-title">Image Tools</span>
+        <span class="panel-tag">filters · download</span>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <div class="card-label">Image Processor</div>
+          <div class="dropzone" id="img-drop" onclick="document.getElementById('img-up').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="imgDrop(event)">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <div class="dropzone-text">Click or drag & drop image here</div>
+          </div>
+          <input type="file" id="img-up" accept="image/*" style="display:none;" onchange="imgLoad(this)">
+          <canvas id="img-canvas" style="display:none;"></canvas>
+          <div class="row" id="img-ctrl" style="display:none;margin-top:12px;">
+            <button class="btn p" onclick="imgFx('grayscale')">Grayscale</button>
+            <button class="btn" onclick="imgFx('sepia')">Sepia</button>
+            <button class="btn" onclick="imgFx('invert')">Invert</button>
+            <button class="btn" onclick="imgFx('blur')">Blur</button>
+            <button class="btn" onclick="imgFx('sharpen')">Sharpen</button>
+            <button class="btn" onclick="imgFx('none')">Original</button>
+            <button class="btn d" onclick="imgDl()">↓ Download</button>
+          </div>
+          <div id="img-info" style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MORSE ===== -->
+    <div class="view" id="view-morse">
+      <div class="panel-head">
+        <div class="panel-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49"/></svg></div>
+        <span class="panel-title">Morse Code</span>
+        <span class="panel-tag">encode · decode · beep</span>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-label">Text → Morse</div>
+          <textarea id="morse-in" placeholder="Type text to encode..." oninput="morseEnc()"></textarea>
+          <div class="morse-out" id="morse-out"></div>
+          <div class="row">
+            <button class="btn p" onclick="morseBeep()">▶ Beep</button>
+            <button class="btn" onclick="cp('morse-out')">Copy Morse</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Morse → Text</div>
+          <textarea id="morse-dec-in" placeholder=".. -. .--. ..- -" oninput="morseDec()"></textarea>
+          <div class="out" id="morse-dec-out">—</div>
+          <div class="row">
+            <button class="btn p" onclick="cp('morse-dec-out')">Copy Text</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast-zone" id="tz"></div>
+
+<script>
+// ========= NAVIGATION =========
+const ALL_VIEWS = ['text','color','encode','json','gen','units','timer','notes','image','morse'];
+const cur = localStorage.getItem('nx-view') || 'text';
+
+function go(id) {
+  ALL_VIEWS.forEach(v => {
+    document.getElementById('view-'+v).classList.toggle('on', v===id);
+    document.getElementById('ni-'+v).classList.toggle('on', v===id);
+  });
+  localStorage.setItem('nx-view', id);
+}
+
+// Restore last view
+go(cur);
+
+// ========= TOAST =========
+function toast(msg, type='ok') {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type==='err'?' err':type==='warn'?' warn':'');
+  t.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${msg}`;
+  document.getElementById('tz').appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+function cp(id) {
+  const el = document.getElementById(id);
+  const t = el.textContent;
+  if (!t || t === '—') { toast('Nothing to copy', 'warn'); return; }
+  navigator.clipboard.writeText(t).then(() => toast('Copied!'));
+}
+
+function cp2(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.innerText).then(() => toast('Copied!'));
+}
+
+// ========= AUTO SAVE SYSTEM =========
+// Keys map for all persistent inputs
+const SAVE_MAP = {
+  // Text tools
+  'ti': 'nx-ti', 'trx-in': 'nx-trx', 'fr-t': 'nx-frt', 'fr-f': 'nx-frf', 'fr-r': 'nx-frr',
+  // Encode
+  'b64i': 'nx-b64', 'urli': 'nx-url', 'roti': 'nx-rot', 'htmli': 'nx-html',
+  // JSON
+  'jsoni': 'nx-json',
+  // Notes
+  'note': 'nx-note',
+  // Morse
+  'morse-in': 'nx-morse', 'morse-dec-in': 'nx-morsed',
+};
+
+function saveAll() {
+  for (const [id, key] of Object.entries(SAVE_MAP)) {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem(key, el.value);
+  }
+}
+
+function loadAll() {
+  for (const [id, key] of Object.entries(SAVE_MAP)) {
+    const el = document.getElementById(id);
+    const val = localStorage.getItem(key);
+    if (el && val !== null) el.value = val;
+  }
+}
+
+// Save on page unload (tab close, navigate away)
+window.addEventListener('beforeunload', saveAll);
+// Also save periodically
+setInterval(saveAll, 10000);
+
+// ========= TEXT TOOLS =========
+function analyzeText() {
+  const t = document.getElementById('ti').value;
+  document.getElementById('sc').textContent = t.length;
+  document.getElementById('sw').textContent = t.trim() ? t.trim().split(/\s+/).length : 0;
+  document.getElementById('sl').textContent = t.split('\n').length;
+  document.getElementById('ss').textContent = (t.match(/[.!?]+/g)||[]).length;
+  const w = t.trim() ? t.trim().split(/\s+/).length : 0;
+  document.getElementById('sr').textContent = Math.ceil(w/200) + 'm';
+}
+
+function trx(type) {
+  let t = document.getElementById('trx-in').value;
+  switch(type) {
+    case 'upper': t = t.toUpperCase(); break;
+    case 'lower': t = t.toLowerCase(); break;
+    case 'title': t = t.replace(/\w\S*/g, w => w[0].toUpperCase()+w.slice(1).toLowerCase()); break;
+    case 'camel': t = t.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_,c) => c.toUpperCase()); break;
+    case 'snake': t = t.toLowerCase().replace(/\s+/g,'_'); break;
+    case 'kebab': t = t.toLowerCase().replace(/\s+/g,'-'); break;
+    case 'rev': t = t.split('').reverse().join(''); break;
+    case 'trim': t = t.split('\n').map(l=>l.trim()).filter(l=>l).join('\n'); break;
+  }
+  document.getElementById('trx-out').textContent = t;
+}
+
+function fr() {
+  const t = document.getElementById('fr-t').value;
+  const f = document.getElementById('fr-f').value;
+  const r = document.getElementById('fr-r').value;
+  if (!f) { document.getElementById('fr-out').textContent = t; return; }
+  document.getElementById('fr-out').textContent = t.split(f).join(r);
+  toast('Replaced all occurrences');
+}
+
+function frCount() {
+  const t = document.getElementById('fr-t').value;
+  const f = document.getElementById('fr-f').value;
+  if (!f) return;
+  const n = t.split(f).length - 1;
+  toast(`Found ${n} match${n!==1?'es':''}`);
+}
+
+const LW = ["lorem","ipsum","dolor","sit","amet","consectetur","adipiscing","elit","sed","do","eiusmod","tempor","incididunt","ut","labore","et","dolore","magna","aliqua","enim","minim","veniam","quis","nostrud","exercitation","ullamco","laboris","nisi","aliquip","ex","ea","commodo","consequat","duis","aute","irure","reprehenderit","voluptate","velit","esse","cillum","eu","fugiat","nulla","pariatur","excepteur","sint","occaecat","cupidatat","non","proident","culpa","qui","officia","deserunt","mollit","anim","id","est","laborum"];
+
+function lorem() {
+  const n = +document.getElementById('lorem-n').value;
+  const paras = Array.from({length:n}, () => {
+    const sents = Array.from({length:Math.floor(Math.random()*4)+3}, () => {
+      const ws = Array.from({length:Math.floor(Math.random()*12)+8}, () => LW[Math.floor(Math.random()*LW.length)]);
+      ws[0] = ws[0][0].toUpperCase() + ws[0].slice(1);
+      return ws.join(' ') + '.';
+    });
+    return sents.join(' ');
+  });
+  document.getElementById('lorem-out').textContent = paras.join('\n\n');
+}
+
+// ========= COLOR TOOLS =========
+function h2rgb(hex) {
+  return { r:parseInt(hex.slice(1,3),16), g:parseInt(hex.slice(3,5),16), b:parseInt(hex.slice(5,7),16) };
+}
+
+function rgb2hsl(r,g,b) {
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{
+    const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;default:h=((r-g)/d+4)/6;}
+  }
+  return {h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
+}
+
+function hsl2hex(h,s,l) {
+  s/=100; l/=100;
+  const a=s*Math.min(l,1-l);
+  const f=n=>{const k=(n+h/30)%12;const c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0');};
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function colorUp(hex) {
+  document.getElementById('cp-hex').value = hex;
+  document.getElementById('cp-prev').style.background = hex;
+  document.getElementById('cp-pick').value = hex;
+  const {r,g,b} = h2rgb(hex);
+  const {h,s,l} = rgb2hsl(r,g,b);
+  const fmts = [
+    ['HEX', hex.toUpperCase()],
+    ['RGB', `rgb(${r},${g},${b})`],
+    ['HSL', `hsl(${h},${s}%,${l}%)`],
+    ['RGBA', `rgba(${r},${g},${b},1)`],
+  ];
+  document.getElementById('cp-fmts').innerHTML = fmts.map(([l,v]) =>
+    `<div class="cfmt" onclick="navigator.clipboard.writeText('${v}').then(()=>toast('${l} copied'))"><div class="cfmt-label">${l}</div><div class="cfmt-val">${v}</div></div>`
+  ).join('');
+}
+
+function colorFromHex(v) {
+  if(/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById('cp-pick').value=v; colorUp(v); }
+}
+
+function genPal(type) {
+  const hex = document.getElementById('cp-pick').value;
+  const {r,g,b} = h2rgb(hex);
+  const {h,s,l} = rgb2hsl(r,g,b);
+  let cols = [];
+  if(type==='comp') cols = [hex,hsl2hex((h+180)%360,s,l),hsl2hex((h+30)%360,s,l),hsl2hex((h+210)%360,s,l)];
+  else if(type==='tri') cols = [hex,hsl2hex((h+120)%360,s,l),hsl2hex((h+240)%360,s,l)];
+  else if(type==='ana') cols = [hsl2hex((h-30+360)%360,s,l),hex,hsl2hex((h+30)%360,s,l),hsl2hex((h+60)%360,s,l)];
+  else cols = [hsl2hex(h,s,Math.max(10,l-30)),hsl2hex(h,s,Math.max(10,l-15)),hex,hsl2hex(h,s,Math.min(90,l+15)),hsl2hex(h,s,Math.min(90,l+30))];
+  document.getElementById('pal-out').innerHTML = cols.map(c =>
+    `<div class="swatch" style="background:${c};" title="${c}" onclick="navigator.clipboard.writeText('${c}').then(()=>toast('${c} copied'))"></div>`
+  ).join('');
+}
+
+function buildGrad() {
+  const c1=document.getElementById('g1').value, c2=document.getElementById('g2').value, d=document.getElementById('gdir').value;
+  const css = `linear-gradient(${d},${c1},${c2})`;
+  document.getElementById('g-prev').style.background = css;
+  document.getElementById('g-css').textContent = `background: ${css};`;
+}
+
+function contrast() {
+  const fg=document.getElementById('cf').value, bg=document.getElementById('cb').value;
+  document.getElementById('cp-area').style.color = fg;
+  document.getElementById('cp-area').style.background = bg;
+  const lum = h => {
+    const {r,g,b} = h2rgb(h);
+    const [rr,gg,bb] = [r,g,b].map(c=>{c/=255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);});
+    return 0.2126*rr+0.7152*gg+0.0722*bb;
+  };
+  const L1=Math.max(lum(fg),lum(bg)), L2=Math.min(lum(fg),lum(bg));
+  const ratio=((L1+0.05)/(L2+0.05)).toFixed(2);
+  const g = ratio>=7?'AAA ✓':ratio>=4.5?'AA ✓':ratio>=3?'AA Large':'FAIL ✗';
+  document.getElementById('cp-res').textContent = `Ratio: ${ratio}:1 — WCAG: ${g}`;
+}
+
+setTimeout(() => { colorUp('#00d9a0'); buildGrad(); contrast(); genPal('tri'); }, 100);
+
+// ========= ENCODE =========
+function b64(m) {
+  const v = document.getElementById('b64i').value;
+  try { document.getElementById('b64o').textContent = m==='enc'?btoa(unescape(encodeURIComponent(v))):decodeURIComponent(escape(atob(v))); }
+  catch(e) { document.getElementById('b64o').textContent='Error: '+e.message; }
+}
+
+function urlEnc(m) {
+  const v = document.getElementById('urli').value;
+  document.getElementById('urlo').textContent = m==='enc'?encodeURIComponent(v):decodeURIComponent(v);
+}
+
+function rotGo() {
+  const v = document.getElementById('roti').value;
+  const n = +document.getElementById('rot-n').value;
+  document.getElementById('roto').textContent = v.replace(/[a-zA-Z]/g, c => {
+    const b = c<='Z'?65:97;
+    return String.fromCharCode(((c.charCodeAt(0)-b+n)%26)+b);
+  });
+}
+
+function htmlEnc(m) {
+  const v = document.getElementById('htmli').value;
+  if(m==='enc') {
+    document.getElementById('htmlo').textContent = v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  } else {
+    const d=document.createElement('div'); d.innerHTML=v;
+    document.getElementById('htmlo').textContent = d.textContent;
+  }
+}
+
+// ========= JSON =========
+function jsonFmt(m) {
+  const v = document.getElementById('jsoni').value;
+  const out = document.getElementById('json-out');
+  try {
+    let p = JSON.parse(v);
+    if(m==='sort') p = sortObj(p);
+    if(m==='validate') { toast('Valid JSON ✓'); return; }
+    const s = m==='minify'?JSON.stringify(p):JSON.stringify(p,null,2);
+    out.innerHTML = hlJSON(s);
+  } catch(e) { out.innerHTML = `<span style="color:var(--rose)">Parse Error: ${e.message}</span>`; }
+}
+
+function sortObj(o) {
+  if(typeof o!=='object'||o===null) return o;
+  if(Array.isArray(o)) return o.map(sortObj);
+  return Object.fromEntries(Object.keys(o).sort().map(k=>[k,sortObj(o[k])]));
+}
+
+function hlJSON(j) {
+  return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{
+    let c='jn';
+    if(/^"/.test(m)) c=/:$/.test(m)?'jk':'js';
+    else if(/true|false/.test(m)) c='jb';
+    else if(/null/.test(m)) c='jnull';
+    return `<span class="${c}">${m}</span>`;
+  });
+}
+
+// ========= GENERATORS =========
+function uuid4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
+    const r=Math.random()*16|0; return(c==='x'?r:(r&0x3|0x8)).toString(16);
+  });
+}
+
+function genUUID() {
+  const n = +document.getElementById('uuid-n').value;
+  document.getElementById('uuid-list').innerHTML = Array.from({length:n},()=>{
+    const id = uuid4();
+    return `<div class="gen-item" onclick="navigator.clipboard.writeText('${id}').then(()=>toast('Copied'))">
+      <span>${id}</span>
+      <svg class="gen-copy" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </div>`;
+  }).join('');
+}
+
+function genPW() {
+  const len = +document.getElementById('pw-len').value;
+  let chars = 'abcdefghijklmnopqrstuvwxyz';
+  if(document.getElementById('pw-up').checked) chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if(document.getElementById('pw-num').checked) chars+='0123456789';
+  if(document.getElementById('pw-sym').checked) chars+='!@#$%^&*()-_=+[]{}|;:,.<>?';
+  const pw = Array.from({length:len},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const str = len<8?'Weak':len<12?'Fair':len<20?'Strong':'Very Strong';
+  const col = {Weak:'var(--rose)',Fair:'var(--amber)',Strong:'var(--sky)',['Very Strong']:'var(--mint)'}[str];
+  document.getElementById('pw-list').innerHTML = `<div class="gen-item" onclick="navigator.clipboard.writeText('${pw}').then(()=>toast('Password copied'))">
+    <span style="font-size:12px;word-break:break-all;">${pw}</span>
+    <span style="color:${col};font-size:9px;white-space:nowrap;margin-left:8px;">${str}</span>
+  </div>`;
+}
+
+function genRand() {
+  const mn=+document.getElementById('rn-min').value, mx=+document.getElementById('rn-max').value;
+  const n = Math.floor(Math.random()*(mx-mn+1))+mn;
+  const el = document.getElementById('rn-out');
+  el.style.transform='scale(1.2)';
+  el.textContent = n;
+  setTimeout(()=>el.style.transform='scale(1)',120);
+}
+
+function copyAll(id) {
+  const txt = Array.from(document.querySelectorAll(`#${id} .gen-item span`)).map(i=>i.textContent).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>toast('All copied!'));
+}
+
+// ========= UNIT CONVERTERS =========
+const LF={m:1,km:1000,cm:0.01,mm:0.001,ft:0.3048,in:0.0254,mi:1609.344,yd:0.9144};
+const WF={kg:1,g:0.001,lb:0.453592,oz:0.0283495,t:1000};
+const DF={b:1,kb:1024,mb:1048576,gb:1073741824,tb:1099511627776};
+
+function mkItems(val,facs,unit) {
+  return Object.entries(facs).filter(([k])=>k!==unit).map(([k,f])=>{
+    const r=val*facs[unit]/f;
+    const d=r<0.001||r>1e9?r.toExponential(3):parseFloat(r.toPrecision(6));
+    return `<div class="gen-item"><span>${d} ${k}</span></div>`;
+  }).join('');
+}
+
+function cvLen() { document.getElementById('len-out').innerHTML=mkItems(+document.getElementById('len-v').value||0,LF,document.getElementById('len-u').value); }
+function cvWt()  { document.getElementById('wt-out').innerHTML=mkItems(+document.getElementById('wt-v').value||0,WF,document.getElementById('wt-u').value); }
+function cvData(){ document.getElementById('data-out').innerHTML=mkItems(+document.getElementById('data-v').value||0,DF,document.getElementById('data-u').value); }
+
+function cvTmp() {
+  const v=+document.getElementById('tmp-v').value||0, u=document.getElementById('tmp-u').value;
+  let c; if(u==='c')c=v; else if(u==='f')c=(v-32)*5/9; else c=v-273.15;
+  const rows = [
+    u!=='c' && `<div class="gen-item"><span>${c.toFixed(4)} °C</span></div>`,
+    u!=='f' && `<div class="gen-item"><span>${(c*9/5+32).toFixed(4)} °F</span></div>`,
+    u!=='k' && `<div class="gen-item"><span>${(c+273.15).toFixed(4)} K</span></div>`,
+  ].filter(Boolean);
+  document.getElementById('tmp-out').innerHTML = rows.join('');
+}
+
+setTimeout(()=>{ cvLen(); cvWt(); cvTmp(); cvData(); },200);
+
+// ========= CLOCK =========
+const ZONES = [
+  {city:'New York',tz:'America/New_York'},
+  {city:'London',tz:'Europe/London'},
+  {city:'Tokyo',tz:'Asia/Tokyo'},
+  {city:'Dubai',tz:'Asia/Dubai'},
+];
+
+function updateClock() {
+  const now = new Date();
+  const tEl = document.getElementById('clk-main');
+  if(tEl) tEl.textContent = now.toLocaleTimeString('en-US',{hour12:false});
+  const dEl = document.getElementById('clk-date');
+  if(dEl) dEl.textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('tb-time').textContent = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+  const wEl = document.getElementById('wclocks');
+  if(wEl) wEl.innerHTML = ZONES.map(({city,tz})=>`
+    <div class="wc">
+      <div class="wc-city">${city.toUpperCase()}</div>
+      <div class="wc-time">${new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}</div>
+    </div>`).join('');
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+// ========= STOPWATCH =========
+let swRun=false, swStart=0, swEl=0, swInt=null, swLap=1;
+
+function swToggle() {
+  if(!swRun) {
+    swStart = Date.now()-swEl;
+    swInt = setInterval(swTick,50);
+    swRun = true;
+    document.getElementById('sw-btn').textContent = '⏸ Pause';
+  } else {
+    clearInterval(swInt); swRun=false;
+    document.getElementById('sw-btn').textContent = '▶ Resume';
+  }
+}
+
+function swTick() {
+  swEl = Date.now()-swStart;
+  const ms=swEl%1000, s=Math.floor(swEl/1000)%60, m=Math.floor(swEl/60000);
+  document.getElementById('sw-d').innerHTML = `${String(m).padStart(2,'0')}<small>:${String(s).padStart(2,'0')}</small><span class="ms">.${String(Math.floor(ms/10)).padStart(2,'0')}</span>`;
+}
+
+function swLapFn() {
+  if(!swRun) return;
+  const ms=swEl%1000, s=Math.floor(swEl/1000)%60, m=Math.floor(swEl/60000);
+  const d=document.createElement('div'); d.className='lap-item';
+  d.innerHTML=`<span style="color:var(--t3)">Lap ${swLap++}</span><span>${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(Math.floor(ms/10)).padStart(2,'0')}</span>`;
+  document.getElementById('sw-laps').prepend(d);
+}
+
+document.querySelector('[onclick="swLap()"]').onclick = swLapFn;
+
+function swReset() {
+  clearInterval(swInt); swRun=false; swEl=0; swLap=1;
+  document.getElementById('sw-d').innerHTML = '00<small>:00</small><span class="ms">.00</span>';
+  document.getElementById('sw-btn').textContent = '▶ Start';
+  document.getElementById('sw-laps').innerHTML = '';
+}
+
+// ========= COUNTDOWN =========
+let cdRun=false, cdTotal=0, cdLeft=0, cdInt=null;
+
+function cdToggle() {
+  if(!cdRun) {
+    if(cdLeft<=0) {
+      cdTotal = (+document.getElementById('cd-h').value||0)*3600 + (+document.getElementById('cd-m').value||0)*60 + (+document.getElementById('cd-s').value||0);
+      cdLeft = cdTotal;
+    }
+    if(cdLeft<=0) return;
+    cdInt=setInterval(cdTick,1000); cdRun=true;
+    document.getElementById('cd-btn').textContent='⏸ Pause';
+  } else {
+    clearInterval(cdInt); cdRun=false;
+    document.getElementById('cd-btn').textContent='▶ Resume';
+  }
+}
+
+function cdTick() {
+  cdLeft--;
+  const h=Math.floor(cdLeft/3600), m=Math.floor((cdLeft%3600)/60), s=cdLeft%60;
+  document.getElementById('cd-d').textContent = h>0
+    ?`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    :`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  document.getElementById('cd-bar').style.width = `${cdTotal>0?(cdLeft/cdTotal)*100:0}%`;
+  if(cdLeft<=0) {
+    clearInterval(cdInt); cdRun=false;
+    document.getElementById('cd-d').textContent='DONE';
+    document.getElementById('cd-btn').textContent='▶ Start';
+    toast('Countdown finished!','warn');
+  }
+}
+
+function cdReset() {
+  clearInterval(cdInt); cdRun=false; cdLeft=0;
+  document.getElementById('cd-d').textContent='00:00';
+  document.getElementById('cd-bar').style.width='100%';
+  document.getElementById('cd-btn').textContent='▶ Start';
+}
+
+// ========= NOTES =========
+let saveDot = null;
+let saveTimeout = null;
+
+function noteSave() {
+  const el = document.getElementById('note');
+  const t = el.value;
+  
+  // Update word count
+  const w = t.trim() ? t.trim().split(/\s+/).length : 0;
+  document.getElementById('note-wc').textContent = `${w} words · ${t.length} chars`;
+  
+  // Show saving indicator
+  const dot = document.getElementById('save-dot');
+  dot.classList.add('saving');
+  
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    localStorage.setItem('nx-note', t);
+    dot.classList.remove('saving');
+  }, 600);
+}
+
+function cpNote() {
+  const t = document.getElementById('note').value;
+  if(!t) { toast('Nothing to copy','warn'); return; }
+  navigator.clipboard.writeText(t).then(()=>toast('Notes copied!'));
+}
+
+function dlNote() {
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(document.getElementById('note').value);
+  a.download='nexus-notes.txt'; a.click();
+}
+
+function clearNote() {
+  if(confirm('Clear all notes? This cannot be undone.')) {
+    document.getElementById('note').value = '';
+    localStorage.removeItem('nx-note');
+    noteSave();
+  }
+}
+
+// ========= IMAGE TOOLS =========
+let origImgData = null;
+
+function imgLoad(inp) {
+  const file=inp.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload = e => {
+    const img=new Image();
+    img.onload = () => {
+      const canvas=document.getElementById('img-canvas');
+      const maxW=700, scale=img.width>maxW?maxW/img.width:1;
+      canvas.width=Math.round(img.width*scale);
+      canvas.height=Math.round(img.height*scale);
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      origImgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      canvas.style.display='block';
+      document.getElementById('img-ctrl').style.display='flex';
+      document.getElementById('img-info').textContent=`${img.width}×${img.height}px · ${(file.size/1024).toFixed(1)} KB · ${file.type}`;
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function imgDrop(e) {
+  e.preventDefault();
+  document.getElementById('img-drop').classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){
+    const dt=new DataTransfer(); dt.items.add(file);
+    document.getElementById('img-up').files=dt.files;
+    imgLoad(document.getElementById('img-up'));
+  }
+}
+
+function imgFx(type) {
+  const canvas=document.getElementById('img-canvas');
+  const ctx=canvas.getContext('2d');
+  if(type==='none'){ctx.putImageData(origImgData,0,0);return;}
+  const id=new ImageData(new Uint8ClampedArray(origImgData.data),origImgData.width,origImgData.height);
+  const d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    if(type==='grayscale'){const g=(d[i]+d[i+1]+d[i+2])/3;d[i]=d[i+1]=d[i+2]=g;}
+    else if(type==='sepia'){const r=d[i],g=d[i+1],b=d[i+2];d[i]=Math.min(255,r*0.393+g*0.769+b*0.189);d[i+1]=Math.min(255,r*0.349+g*0.686+b*0.168);d[i+2]=Math.min(255,r*0.272+g*0.534+b*0.131);}
+    else if(type==='invert'){d[i]=255-d[i];d[i+1]=255-d[i+1];d[i+2]=255-d[i+2];}
+    else if(type==='blur'){d[i]=d[i]*0.75+64*0.25;d[i+1]=d[i+1]*0.75+64*0.25;d[i+2]=d[i+2]*0.75+64*0.25;}
+    else if(type==='sharpen'){d[i]=Math.min(255,d[i]*1.5-50);d[i+1]=Math.min(255,d[i+1]*1.5-50);d[i+2]=Math.min(255,d[i+2]*1.5-50);}
+  }
+  ctx.putImageData(id,0,0);
+}
+
+function imgDl() {
+  const a=document.createElement('a');
+  a.href=document.getElementById('img-canvas').toDataURL('image/png');
+  a.download='nexus-export.png'; a.click();
+}
+
+// ========= MORSE =========
+const MC={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.'};
+const MCR=Object.fromEntries(Object.entries(MC).map(([k,v])=>[v,k]));
+
+function morseEnc() {
+  const t=document.getElementById('morse-in').value.toUpperCase();
+  document.getElementById('morse-out').textContent = t.split('').map(c=>c===' '?'/':(MC[c]||'?')).join(' ');
+}
+
+function morseDec() {
+  const t=document.getElementById('morse-dec-in').value.trim();
+  document.getElementById('morse-dec-out').textContent = t.split(' / ').map(w=>w.split(' ').map(c=>MCR[c]||'?').join('')).join(' ');
+}
+
+async function morseBeep() {
+  const m=document.getElementById('morse-out').textContent;
+  if(!m) return;
+  const ctx=new(window.AudioContext||window.webkitAudioContext)();
+  const dot=0.06,dash=0.18,gap=0.06,wg=0.4;
+  let t=ctx.currentTime+0.05;
+  for(const s of m){
+    if(s==='.'){const o=ctx.createOscillator();o.frequency.value=700;o.connect(ctx.destination);o.start(t);t+=dot;o.stop(t);t+=gap;}
+    else if(s==='-'){const o=ctx.createOscillator();o.frequency.value=700;o.connect(ctx.destination);o.start(t);t+=dash;o.stop(t);t+=gap;}
+    else if(s===' ')t+=gap*2;
+    else if(s==='/')t+=wg;
+  }
+}
+
+// ========= INIT =========
+// Load saved data
+loadAll();
+
+// Restore note
+const savedNote = localStorage.getItem('nx-note');
+if(savedNote) document.getElementById('note').value = savedNote;
+noteSave();
+
+// Init generators
+setTimeout(()=>{ genUUID(); genPW(); lorem(); }, 100);
+
+// Detect if any text-based tool had saved content and rerun analysis
+setTimeout(() => {
+  if(document.getElementById('ti').value) analyzeText();
+  if(document.getElementById('morse-in').value) morseEnc();
+  if(document.getElementById('morse-dec-in').value) morseDec();
+}, 200);
+
+// Save indicator init
+document.getElementById('save-dot').style.background = 'var(--mint)';
+</script>
+</body>
+</html>
