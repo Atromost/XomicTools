@@ -7,7 +7,7 @@
 **DrawkiFlow** unifies productivity tools in one evolving platform, adding new features continuously. Built with an indie vision, *it prioritizes simplicity, efficiency, and strong user privacy*.
 ---
 
-## Main GUI
+## Main GUI.
 
 For the best visual representation of the workspace, focus on these key views:
 <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/b7bf7f5c-9a8e-4634-8ec9-6b82968e33b1" />
