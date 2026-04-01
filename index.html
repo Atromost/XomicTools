@@ -15,6 +15,7 @@
     --tempo: #ff6b2b;
     --tempo-gold: #ffd166;
     --nexus: #00d9a0;
+    --wikiuse: #3b82f6;
     --bg: #080810;
     --border: rgba(255,255,255,0.08);
   }
@@ -342,7 +343,6 @@
     transition: opacity 0.4s ease;
   }
 
-  /* Gradient backdrop */
   .loading-bg {
     position: absolute;
     inset: 0;
@@ -353,25 +353,17 @@
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
   }
-
-  /* Animated gradient sweep */
   .loading-bg::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg,
-      rgba(124,111,247,0.15) 0%,
-      transparent 40%,
-      rgba(200,241,53,0.1) 70%,
-      transparent 100%);
+    background: linear-gradient(135deg, rgba(124,111,247,0.15) 0%, transparent 40%, rgba(200,241,53,0.1) 70%, transparent 100%);
     animation: gradientSweep 3s ease-in-out infinite alternate;
   }
   @keyframes gradientSweep {
     from { opacity: 0.6; transform: scale(1) rotate(0deg); }
     to   { opacity: 1;   transform: scale(1.05) rotate(2deg); }
   }
-
-  /* Tool label above loader */
   .loading-label {
     position: relative;
     z-index: 1;
@@ -386,8 +378,6 @@
     0%, 100% { opacity: 0.5; }
     50%       { opacity: 0.9; }
   }
-
-  /* Loader wrapper */
   .loading-icon-wrap {
     position: relative;
     z-index: 1;
@@ -395,8 +385,6 @@
     align-items: center;
     justify-content: center;
   }
-
-  /* Glow ring behind the loader */
   .loading-glow {
     position: absolute;
     width: 160px;
@@ -411,8 +399,6 @@
     0%, 100% { transform: scale(0.9); opacity: 0.2; }
     50%       { transform: scale(1.2); opacity: 0.4; }
   }
-
-  /* The loader component */
   .loader {
     --cloud-color: #4387f4;
     --arrows-color: #80b1ff;
@@ -429,21 +415,6 @@
     filter: drop-shadow(0 0 8px black);
     animation: rotation var(--time-animation) linear infinite;
   }
-  .loader #shapes g g circle {
-    animation: cloud calc(var(--time-animation) * 2) linear infinite;
-  }
-  .loader #shapes g g circle:nth-child(2) {
-    animation-delay: calc((var(--time-animation) * 2) / -3);
-  }
-  .loader #shapes g g circle:nth-child(3) {
-    animation-delay: calc((var(--time-animation) * 2) / -1.5);
-  }
-  .loader svg #lines g line {
-    stroke-width: 5;
-    transform-origin: 50% 50%;
-    rotate: -65deg;
-    animation: lines calc(var(--time-animation) / 1.33) linear infinite;
-  }
   @keyframes rotation {
     0%   { transform: rotate(0deg); }
     50%  { transform: rotate(180deg); }
@@ -458,8 +429,6 @@
     50%  { cx: 50; cy: 45; r: 20; }
     100% { cx: 80; cy: 60; r: 15; }
   }
-
-  /* Loading tool name below */
   .loading-toolname {
     position: relative;
     z-index: 1;
@@ -476,8 +445,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-
-  /* Bottom progress bar */
   .loading-bar-wrap {
     position: absolute;
     bottom: 0; left: 0; right: 0;
@@ -499,18 +466,10 @@
     90%  { width: 92%; }
     100% { width: 100%; }
   }
-
-  /* Scanline shimmer */
   .loading-scanline {
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(255,255,255,0.012) 3px,
-      rgba(255,255,255,0.012) 4px
-    );
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.012) 3px, rgba(255,255,255,0.012) 4px);
     pointer-events: none;
     z-index: 1;
   }
@@ -518,11 +477,9 @@
 </head>
 <body>
 
-<!-- CURSOR -->
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
-<!-- AURORA -->
 <div class="aurora">
   <div class="aurora-blob a1"></div>
   <div class="aurora-blob a2"></div>
@@ -530,23 +487,17 @@
   <div class="aurora-blob a4"></div>
 </div>
 
-<!-- GRID -->
 <div class="grid"></div>
-
-<!-- PARTICLES -->
 <div class="particles" id="particles"></div>
 
-<!-- CORNERS -->
 <div class="corner corner-tl"><svg viewBox="0 0 28 28"><line x1="0" y1="0" x2="28" y2="0"/><line x1="0" y1="0" x2="0" y2="28"/></svg></div>
 <div class="corner corner-tr"><svg viewBox="0 0 28 28"><line x1="0" y1="0" x2="28" y2="0"/><line x1="0" y1="0" x2="0" y2="28"/></svg></div>
 <div class="corner corner-bl"><svg viewBox="0 0 28 28"><line x1="0" y1="0" x2="28" y2="0"/><line x1="0" y1="0" x2="0" y2="28"/></svg></div>
 <div class="corner corner-br"><svg viewBox="0 0 28 28"><line x1="0" y1="0" x2="28" y2="0"/><line x1="0" y1="0" x2="0" y2="28"/></svg></div>
 
-<!-- SIDE LABELS -->
 <div class="side-label left">FLOWLY · DRAWKI · TEMPO</div>
 <div class="side-label right">DRAWKIFLOW · SUITE 2025</div>
 
-<!-- GITHUB -->
 <a href="https://github.com/Atromost/Flowly-Notes" target="_blank" class="github-btn">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
@@ -555,19 +506,13 @@
   <div class="gh-badge">OSS</div>
 </a>
 
-<!-- MAIN -->
 <div class="wrapper">
-
   <div class="eyebrow">Creative Suite — Est. 2025</div>
-
-  <!-- BRAND NAME -->
   <div class="brand">
     <span class="brand-drawki">Drawki</span>
     <span class="brand-dot">·</span>
     <span class="brand-flow">Flow</span>
   </div>
-
-  <!-- TOOL TAGLINE -->
   <div class="tagline">
     <span class="tagline-word tw-flowly">Flowly</span>
     <div class="tagline-sep"></div>
@@ -575,127 +520,63 @@
     <div class="tagline-sep"></div>
     <span class="tagline-word tw-tempo">Tempo</span>
   </div>
-
-  <!-- YOUR TOOLS ONE PLACE -->
   <div class="bottom-tag" style="margin-top:-8px; font-size:9px; letter-spacing:0.28em; color:rgba(255,255,255,0.18);">
     YOUR TOOLS &nbsp;·&nbsp; <span>ONE PLACE</span>
   </div>
-
-  <!-- PILL BADGES -->
   <div class="badges">
     <div class="badge badge-flowly">Node Notes</div>
     <div class="badge badge-drawki">Freeform Canvas</div>
     <div class="badge badge-tempo">Precision Timer</div>
   </div>
-
   <div class="bottom-tag">
     <span>DRAWKIFLOW</span> &nbsp;·&nbsp; OPEN SOURCE &nbsp;·&nbsp; <span>2025</span>
   </div>
-
 </div>
 
-<!-- DOCK -->
 <div class="dock-outer">
   <div class="dock-panel" id="dockPanel"></div>
 </div>
 
-<!-- LOADING SCREEN -->
 <div id="loadingScreen">
   <div class="loading-bg"></div>
   <div class="loading-scanline"></div>
-
   <div class="loading-label" id="loadingLabel">Launching</div>
-
   <div class="loading-icon-wrap">
     <div class="loading-glow" id="loadingGlow"></div>
     <div class="loader">
       <svg id="cloud" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <defs>
-          <filter id="roundness">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"></feGaussianBlur>
-            <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix>
-          </filter>
-          <mask id="shapes">
-            <g fill="white">
-              <polygon points="50 37.5 80 75 20 75 50 37.5"></polygon>
-              <circle cx="20" cy="60" r="15"></circle>
-              <circle cx="80" cy="60" r="15"></circle>
-              <g>
-                <circle cx="20" cy="60" r="15"></circle>
-                <circle cx="20" cy="60" r="15"></circle>
-                <circle cx="20" cy="60" r="15"></circle>
-              </g>
-            </g>
-          </mask>
-          <mask id="clipping" clipPathUnits="userSpaceOnUse">
-            <g id="lines" filter="url(#roundness)">
-              <g mask="url(#shapes)" stroke="white">
-                <line x1="-50" y1="-40" x2="150" y2="-40"></line>
-                <line x1="-50" y1="-31" x2="150" y2="-31"></line>
-                <line x1="-50" y1="-22" x2="150" y2="-22"></line>
-                <line x1="-50" y1="-13" x2="150" y2="-13"></line>
-                <line x1="-50" y1="-4" x2="150" y2="-4"></line>
-                <line x1="-50" y1="5" x2="150" y2="5"></line>
-                <line x1="-50" y1="14" x2="150" y2="14"></line>
-                <line x1="-50" y1="23" x2="150" y2="23"></line>
-                <line x1="-50" y1="32" x2="150" y2="32"></line>
-                <line x1="-50" y1="41" x2="150" y2="41"></line>
-                <line x1="-50" y1="50" x2="150" y2="50"></line>
-                <line x1="-50" y1="59" x2="150" y2="59"></line>
-                <line x1="-50" y1="68" x2="150" y2="68"></line>
-                <line x1="-50" y1="77" x2="150" y2="77"></line>
-                <line x1="-50" y1="86" x2="150" y2="86"></line>
-                <line x1="-50" y1="95" x2="150" y2="95"></line>
-                <line x1="-50" y1="104" x2="150" y2="104"></line>
-                <line x1="-50" y1="113" x2="150" y2="113"></line>
-                <line x1="-50" y1="122" x2="150" y2="122"></line>
-                <line x1="-50" y1="131" x2="150" y2="131"></line>
-                <line x1="-50" y1="140" x2="150" y2="140"></line>
-              </g>
-            </g>
-          </mask>
+          <filter id="roundness"><feGaussianBlur in="SourceGraphic" stdDeviation="1.5"></feGaussianBlur><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix></filter>
+          <mask id="shapes"><g fill="white"><polygon points="50 37.5 80 75 20 75 50 37.5"></polygon><circle cx="20" cy="60" r="15"></circle><circle cx="80" cy="60" r="15"></circle><g><circle cx="20" cy="60" r="15"></circle><circle cx="20" cy="60" r="15"></circle><circle cx="20" cy="60" r="15"></circle></g></g></mask>
+          <mask id="clipping" clipPathUnits="userSpaceOnUse"><g id="lines" filter="url(#roundness)"><g mask="url(#shapes)" stroke="white"><line x1="-50" y1="-40" x2="150" y2="-40"></line><line x1="-50" y1="-31" x2="150" y2="-31"></line><line x1="-50" y1="-22" x2="150" y2="-22"></line><line x1="-50" y1="-13" x2="150" y2="-13"></line><line x1="-50" y1="-4" x2="150" y2="-4"></line><line x1="-50" y1="5" x2="150" y2="5"></line><line x1="-50" y1="14" x2="150" y2="14"></line><line x1="-50" y1="23" x2="150" y2="23"></line><line x1="-50" y1="32" x2="150" y2="32"></line><line x1="-50" y1="41" x2="150" y2="41"></line><line x1="-50" y1="50" x2="150" y2="50"></line><line x1="-50" y1="59" x2="150" y2="59"></line><line x1="-50" y1="68" x2="150" y2="68"></line><line x1="-50" y1="77" x2="150" y2="77"></line><line x1="-50" y1="86" x2="150" y2="86"></line><line x1="-50" y1="95" x2="150" y2="95"></line><line x1="-50" y1="104" x2="150" y2="104"></line><line x1="-50" y1="113" x2="150" y2="113"></line><line x1="-50" y1="122" x2="150" y2="122"></line><line x1="-50" y1="131" x2="150" y2="131"></line><line x1="-50" y1="140" x2="150" y2="140"></line></g></g></mask>
         </defs>
         <rect x="0" y="0" width="100" height="100" rx="0" ry="0" mask="url(#clipping)"></rect>
-        <g>
-          <path d="M33.52,68.12 C35.02,62.8 39.03,58.52 44.24,56.69 C49.26,54.93 54.68,55.61 59.04,58.4 C59.04,58.4 56.24,60.53 56.24,60.53 C55.45,61.13 55.68,62.37 56.63,62.64 C56.63,62.64 67.21,65.66 67.21,65.66 C67.98,65.88 68.75,65.3 68.74,64.5 C68.74,64.5 68.68,53.5 68.68,53.5 C68.67,52.51 67.54,51.95 66.75,52.55 C66.75,52.55 64.04,54.61 64.04,54.61 C57.88,49.79 49.73,48.4 42.25,51.03 C35.2,53.51 29.78,59.29 27.74,66.49 C27.29,68.08 28.22,69.74 29.81,70.19 C30.09,70.27 30.36,70.31 30.63,70.31 C31.94,70.31 33.14,69.44 33.52,68.12Z"></path>
-          <path d="M69.95,74.85 C68.35,74.4 66.7,75.32 66.25,76.92 C64.74,82.24 60.73,86.51 55.52,88.35 C50.51,90.11 45.09,89.43 40.73,86.63 C40.73,86.63 43.53,84.51 43.53,84.51 C44.31,83.91 44.08,82.67 43.13,82.4 C43.13,82.4 32.55,79.38 32.55,79.38 C31.78,79.16 31.02,79.74 31.02,80.54 C31.02,80.54 31.09,91.54 31.09,91.54 C31.09,92.53 32.22,93.09 33.01,92.49 C33.01,92.49 35.72,90.43 35.72,90.43 C39.81,93.63 44.77,95.32 49.84,95.32 C52.41,95.32 55,94.89 57.51,94.01 C64.56,91.53 69.99,85.75 72.02,78.55 C72.47,76.95 71.54,75.3 69.95,74.85Z"></path>
-        </g>
+        <g><path d="M33.52,68.12 C35.02,62.8 39.03,58.52 44.24,56.69 C49.26,54.93 54.68,55.61 59.04,58.4 C59.04,58.4 56.24,60.53 56.24,60.53 C55.45,61.13 55.68,62.37 56.63,62.64 C56.63,62.64 67.21,65.66 67.21,65.66 C67.98,65.88 68.75,65.3 68.74,64.5 C68.74,64.5 68.68,53.5 68.68,53.5 C68.67,52.51 67.54,51.95 66.75,52.55 C66.75,52.55 64.04,54.61 64.04,54.61 C57.88,49.79 49.73,48.4 42.25,51.03 C35.2,53.51 29.78,59.29 27.74,66.49 C27.29,68.08 28.22,69.74 29.81,70.19 C30.09,70.27 30.36,70.31 30.63,70.31 C31.94,70.31 33.14,69.44 33.52,68.12Z"></path><path d="M69.95,74.85 C68.35,74.4 66.7,75.32 66.25,76.92 C64.74,82.24 60.73,86.51 55.52,88.35 C50.51,90.11 45.09,89.43 40.73,86.63 C40.73,86.63 43.53,84.51 43.53,84.51 C44.31,83.91 44.08,82.67 43.13,82.4 C43.13,82.4 32.55,79.38 32.55,79.38 C31.78,79.16 31.02,79.74 31.02,80.54 C31.02,80.54 31.09,91.54 31.09,91.54 C31.09,92.53 32.22,93.09 33.01,92.49 C33.01,92.49 35.72,90.43 35.72,90.43 C39.81,93.63 44.77,95.32 49.84,95.32 C52.41,95.32 55,94.89 57.51,94.01 C64.56,91.53 69.99,85.75 72.02,78.55 C72.47,76.95 71.54,75.3 69.95,74.85Z"></path></g>
       </svg>
     </div>
   </div>
-
   <div class="loading-toolname" id="loadingToolname"></div>
-
-  <div class="loading-bar-wrap">
-    <div class="loading-bar" id="loadingBar"></div>
-  </div>
+  <div class="loading-bar-wrap"><div class="loading-bar" id="loadingBar"></div></div>
 </div>
 
 <script>
-/* ─── CURSOR ─── */
 const cursor = document.getElementById('cursor');
-const ring   = document.getElementById('cursorRing');
+const ring = document.getElementById('cursorRing');
 let mx = -100, my = -100, rx = -100, ry = -100;
 document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 (function tick() {
   cursor.style.left = mx - 5 + 'px';
-  cursor.style.top  = my - 5 + 'px';
+  cursor.style.top = my - 5 + 'px';
   rx += (mx - rx) * 0.12;
   ry += (my - ry) * 0.12;
   ring.style.left = rx - 16 + 'px';
-  ring.style.top  = ry - 16 + 'px';
+  ring.style.top = ry - 16 + 'px';
   requestAnimationFrame(tick);
 })();
-
 const enlargeRing = () => { ring.style.transform = 'scale(1.8)'; ring.style.opacity = '0.5'; };
-const resetRing   = () => { ring.style.transform = 'scale(1)';   ring.style.opacity = '1'; };
+const resetRing = () => { ring.style.transform = 'scale(1)'; ring.style.opacity = '1'; };
+document.querySelectorAll('.github-btn').forEach(el => { el.addEventListener('mouseenter', enlargeRing); el.addEventListener('mouseleave', resetRing); });
 
-document.querySelectorAll('.github-btn').forEach(el => {
-  el.addEventListener('mouseenter', enlargeRing);
-  el.addEventListener('mouseleave', resetRing);
-});
-
-/* ─── PARTICLES ─── */
 const P = document.getElementById('particles');
 const COLORS = ['#c8f135','#7c6ff7','#e8547a','#ff6b2b','#ffd166'];
 for (let i = 0; i < 40; i++) {
@@ -707,88 +588,25 @@ for (let i = 0; i < 40; i++) {
   P.appendChild(d);
 }
 
-/* ══════════════════════════════════════════════
-   DOCK — macOS spring magnification
-══════════════════════════════════════════════ */
 const DOCK_ITEMS = [
-  {
-    label: 'Flowly Notes',
-    href: 'Flowlynotes.html',
-    dotColor: '#c8f135',
-    bg: 'rgba(200,241,53,0.10)',
-    icon: `<svg width="26" height="26" viewBox="0 0 22 22" fill="none">
-      <circle cx="4" cy="11" r="2.5" stroke="#c8f135" stroke-width="1.5"/>
-      <circle cx="18" cy="5" r="2.5" stroke="#c8f135" stroke-width="1.5"/>
-      <circle cx="18" cy="17" r="2.5" stroke="#c8f135" stroke-width="1.5"/>
-      <circle cx="11" cy="11" r="2.5" stroke="#c8f135" stroke-width="1.5"/>
-      <line x1="6.5" y1="11" x2="8.5" y2="11" stroke="#c8f135" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="13.5" y1="11" x2="15.5" y2="7" stroke="#c8f135" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="13.5" y1="11" x2="15.5" y2="15" stroke="#c8f135" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>`
-  },
-  {
-    label: 'DrawkiBoard',
-    href: 'Drawkiboard.html',
-    dotColor: '#7c6ff7',
-    bg: 'rgba(124,111,247,0.10)',
-    icon: `<svg width="26" height="26" viewBox="0 0 22 22" fill="none">
-      <rect x="3" y="13" width="8" height="6" rx="1.5" stroke="#7c6ff7" stroke-width="1.5"/>
-      <ellipse cx="16" cy="7" rx="4" ry="4" stroke="#7c6ff7" stroke-width="1.5"/>
-      <line x1="9" y1="3" x2="13" y2="7" stroke="#7c6ff7" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/>
-    </svg>`
-  },
-  {
-    label: 'Tempo',
-    href: 'stopwatch.html',
-    dotColor: '#ff6b2b',
-    bg: 'rgba(255,107,43,0.10)',
-    icon: `<svg width="26" height="26" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="12" r="8" stroke="#ff6b2b" stroke-width="1.5"/>
-      <rect x="9" y="2" width="4" height="2.5" rx="1" stroke="#ff6b2b" stroke-width="1.5"/>
-      <line x1="11" y1="12" x2="11" y2="6.5" stroke="#ff6b2b" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="11" y1="12" x2="14.5" y2="14.5" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="11" cy="12" r="1.2" fill="#ff6b2b"/>
-    </svg>`
-  },
-  {
-    label: 'NEXUS',
-    href: 'nexus.html',
-    dotColor: '#00d9a0',
-    bg: 'rgba(0,217,160,0.10)',
-    icon: `<svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-      <path d="M13 3L23 8.5V17.5L13 23L3 17.5V8.5L13 3Z" stroke="#00d9a0" stroke-width="1.5" stroke-linejoin="round" fill="rgba(0,217,160,0.08)"/>
-      <path d="M13 7L19.5 10.75V18.25L13 22L6.5 18.25V10.75L13 7Z" stroke="#00d9a0" stroke-width="1" stroke-linejoin="round" opacity="0.45"/>
-      <circle cx="13" cy="13" r="2.2" fill="#00d9a0" opacity="0.9"/>
-    </svg>`
-  },
+  { label: 'Flowly Notes', href: 'Flowlynotes.html', dotColor: '#c8f135', bg: 'rgba(200,241,53,0.10)', icon: `<svg width="26" height="26" viewBox="0 0 22 22" fill="none"><circle cx="4" cy="11" r="2.5" stroke="#c8f135" stroke-width="1.5"/><circle cx="18" cy="5" r="2.5" stroke="#c8f135" stroke-width="1.5"/><circle cx="18" cy="17" r="2.5" stroke="#c8f135" stroke-width="1.5"/><circle cx="11" cy="11" r="2.5" stroke="#c8f135" stroke-width="1.5"/><line x1="6.5" y1="11" x2="8.5" y2="11" stroke="#c8f135" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="11" x2="15.5" y2="7" stroke="#c8f135" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="11" x2="15.5" y2="15" stroke="#c8f135" stroke-width="1.5" stroke-linecap="round"/></svg>` },
+  { label: 'DrawkiBoard', href: 'Drawkiboard.html', dotColor: '#7c6ff7', bg: 'rgba(124,111,247,0.10)', icon: `<svg width="26" height="26" viewBox="0 0 22 22" fill="none"><rect x="3" y="13" width="8" height="6" rx="1.5" stroke="#7c6ff7" stroke-width="1.5"/><ellipse cx="16" cy="7" rx="4" ry="4" stroke="#7c6ff7" stroke-width="1.5"/><line x1="9" y1="3" x2="13" y2="7" stroke="#7c6ff7" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/></svg>` },
+  { label: 'Tempo', href: 'stopwatch.html', dotColor: '#ff6b2b', bg: 'rgba(255,107,43,0.10)', icon: `<svg width="26" height="26" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="12" r="8" stroke="#ff6b2b" stroke-width="1.5"/><rect x="9" y="2" width="4" height="2.5" rx="1" stroke="#ff6b2b" stroke-width="1.5"/><line x1="11" y1="12" x2="11" y2="6.5" stroke="#ff6b2b" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="12" x2="14.5" y2="14.5" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="12" r="1.2" fill="#ff6b2b"/></svg>` },
+  { label: 'NEXUS', href: 'nexus.html', dotColor: '#00d9a0', bg: 'rgba(0,217,160,0.10)', icon: `<svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 3L23 8.5V17.5L13 23L3 17.5V8.5L13 3Z" stroke="#00d9a0" stroke-width="1.5" stroke-linejoin="round" fill="rgba(0,217,160,0.08)"/><path d="M13 7L19.5 10.75V18.25L13 22L6.5 18.25V10.75L13 7Z" stroke="#00d9a0" stroke-width="1" stroke-linejoin="round" opacity="0.45"/><circle cx="13" cy="13" r="2.2" fill="#00d9a0" opacity="0.9"/></svg>` },
+  { label: 'Wikiuse', href: 'wikiuse.html', dotColor: '#3b82f6', bg: 'rgba(59,130,246,0.12)', icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#3b82f6" stroke-width="1.5" fill="rgba(59,130,246,0.08)"/><path d="M7 9H17" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/><path d="M7 13H13" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/><circle cx="17" cy="13.5" r="1.8" stroke="#3b82f6" stroke-width="1.2" fill="#3b82f6"/><path d="M12 4L12 8" stroke="#3b82f6" stroke-width="1.2" stroke-linecap="round"/></svg>` },
   { sep: true },
-  {
-    label: 'GitHub',
-    href: 'https://github.com/Atromost/Flowly-Notes',
-    external: true,
-    dotColor: 'rgba(255,255,255,0.4)',
-    bg: 'rgba(255,255,255,0.05)',
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="rgba(255,255,255,0.55)">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-    </svg>`
-  }
+  { label: 'GitHub', href: 'https://github.com/Atromost/Flowly-Notes', external: true, dotColor: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.05)', icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="rgba(255,255,255,0.55)"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>` }
 ];
 
-/* Physics constants */
-const BASE      = 48;
-const MAG       = 82;
-const DISTANCE  = 180;
-const STIFFNESS = 0.20;
-const DAMPING   = 0.68;
-
-const panel = document.getElementById('dockPanel');
+const BASE = 48, MAG = 82, DISTANCE = 180, STIFFNESS = 0.20, DAMPING = 0.68;
+const panelEl = document.getElementById('dockPanel');
 const realItems = [];
 
 DOCK_ITEMS.forEach(item => {
   if (item.sep) {
     const sep = document.createElement('div');
     sep.className = 'dock-sep';
-    panel.appendChild(sep);
+    panelEl.appendChild(sep);
     return;
   }
   const el = document.createElement('a');
@@ -796,106 +614,79 @@ DOCK_ITEMS.forEach(item => {
   el.href = item.href;
   if (item.external) el.target = '_blank';
   el.style.background = item.bg;
-  el.innerHTML = `
-    ${item.icon}
-    <div class="dock-label">${item.label}</div>
-    <div class="dock-dot" style="background:${item.dotColor};"></div>
-  `;
-  panel.appendChild(el);
+  el.innerHTML = `${item.icon}<div class="dock-label">${item.label}</div><div class="dock-dot" style="background:${item.dotColor};"></div>`;
+  panelEl.appendChild(el);
   el.addEventListener('mouseenter', enlargeRing);
   el.addEventListener('mouseleave', resetRing);
-
-  /* ── Loading screen intercept (skip external links) ── */
   if (!item.external) {
-    el.addEventListener('click', function(e) {
-      e.preventDefault();
-      showLoadingScreen(item.label, item.dotColor, item.href);
-    });
+    el.addEventListener('click', (e) => { e.preventDefault(); showLoadingScreen(item.label, item.dotColor, item.href); });
   }
-
   realItems.push({ el, spring: { pos: BASE, vel: 0 } });
 });
 
 let dockMouseX = null;
-panel.addEventListener('mousemove', e => { dockMouseX = e.clientX; });
-panel.addEventListener('mouseleave', () => { dockMouseX = null; });
-
+panelEl.addEventListener('mousemove', e => { dockMouseX = e.clientX; });
+panelEl.addEventListener('mouseleave', () => { dockMouseX = null; });
 function getTarget(el) {
   if (dockMouseX === null) return BASE;
-  const r    = el.getBoundingClientRect();
-  const mid  = r.left + r.width / 2;
+  const r = el.getBoundingClientRect();
+  const mid = r.left + r.width / 2;
   const dist = Math.abs(dockMouseX - mid);
   if (dist >= DISTANCE) return BASE;
   const t = 1 - dist / DISTANCE;
   return BASE + (MAG - BASE) * t * t;
 }
 
-/* ══════════════════════════════════════════════
-   LOADING SCREEN LOGIC
-══════════════════════════════════════════════ */
-const loadingScreen  = document.getElementById('loadingScreen');
-const loadingLabel   = document.getElementById('loadingLabel');
+const loadingScreen = document.getElementById('loadingScreen');
+const loadingLabel = document.getElementById('loadingLabel');
 const loadingToolname = document.getElementById('loadingToolname');
-const loadingGlow    = document.getElementById('loadingGlow');
-const loadingBarEl   = document.getElementById('loadingBar');
+const loadingGlow = document.getElementById('loadingGlow');
+const loadingBarEl = document.getElementById('loadingBar');
 
-/* Remap dot color → css var for glow theming */
 function setLoadingColor(color) {
   loadingScreen.style.setProperty('--loading-color', color);
   loadingGlow.style.setProperty('--loading-color', color);
   loadingToolname.style.setProperty('--loading-color', color);
 }
-
-/* Update the cloud SVG fill to match tool color */
 function setLoaderColor(color) {
   const cloudRect = loadingScreen.querySelector('#cloud rect');
-  const arrowsG   = loadingScreen.querySelector('#cloud > g');
+  const arrowsG = loadingScreen.querySelector('#cloud > g');
   if (cloudRect) cloudRect.style.fill = color;
-  /* blend arrow to a lighter tint of the same color */
   if (arrowsG) {
     arrowsG.style.fill = color + 'bb';
     arrowsG.style.filter = `drop-shadow(0 0 8px ${color})`;
   }
-  /* also update the CSS var so glow ring uses it */
   setLoadingColor(color);
 }
-
 function showLoadingScreen(label, color, href) {
-  /* Reset bar animation */
   loadingBarEl.style.animation = 'none';
-  loadingBarEl.offsetHeight; /* reflow */
+  loadingBarEl.offsetHeight;
   loadingBarEl.style.animation = 'barFill 1.4s cubic-bezier(0.4,0,0.2,1) forwards';
-
-  loadingLabel.textContent   = 'Launching';
+  loadingLabel.textContent = 'Launching';
   loadingToolname.textContent = label;
   setLoaderColor(color);
-
   loadingScreen.classList.remove('hiding');
   loadingScreen.classList.add('visible');
-
-  /* Navigate after the bar completes */
   setTimeout(() => {
     loadingScreen.classList.add('hiding');
-    setTimeout(() => {
-      window.location.href = href;
-    }, 400);
+    setTimeout(() => { window.location.href = href; }, 400);
   }, 1500);
 }
 
 (function dockTick() {
   realItems.forEach(({ el, spring }) => {
     const target = getTarget(el);
-    const force  = (target - spring.pos) * STIFFNESS;
-    spring.vel   = (spring.vel + force) * DAMPING;
-    spring.pos  += spring.vel;
+    const force = (target - spring.pos) * STIFFNESS;
+    spring.vel = (spring.vel + force) * DAMPING;
+    spring.pos += spring.vel;
     const sz = Math.max(BASE, spring.pos);
-    el.style.width        = sz + 'px';
-    el.style.height       = sz + 'px';
+    el.style.width = sz + 'px';
+    el.style.height = sz + 'px';
     el.style.borderRadius = Math.round(sz * 0.215) + 'px';
     const svgEl = el.querySelector('svg');
     if (svgEl) {
       const iconSz = Math.round(26 * (sz / BASE));
-      svgEl.setAttribute('width',  Math.min(iconSz, 40));
+      svgEl.setAttribute('width', Math.min(iconSz, 40));
       svgEl.setAttribute('height', Math.min(iconSz, 40));
     }
   });
