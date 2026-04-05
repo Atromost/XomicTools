@@ -1,4 +1,4 @@
-# 🌌 DrawkiFlow -Your Tools One Place.
+U# 🌌 DrawkiFlow -Your Tools One Place.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.0-blueviolet.svg)]()
@@ -65,12 +65,12 @@ For the best visual representation of the workspace, focus on these key views:
 <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/98ed0822-dd69-43af-bee6-e37a8b9b65d6" />
 
 ---
-## Nexus
+## Nexus 🛠
 ---
-## WikiUse
+## WikiUse 📰
 ---
-## AnZen
+## AnZen 💳
 ---
-## GigaPDF
+## GigaPDF 📄
 > **Note:** Flowly Notes and Drawkiboard uses hardware acceleration for smooth panning across large canvases.
 
