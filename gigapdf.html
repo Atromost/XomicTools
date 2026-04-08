@@ -129,28 +129,6 @@ html, body {
   gap: 12px;
 }
 
-.privacy-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--green-dim);
-  border: 1px solid rgba(34,204,136,0.2);
-  color: var(--green);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.5px;
-}
-
-.privacy-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse-green 2s infinite;
-}
-
 @keyframes pulse-green {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.85); }
@@ -989,10 +967,6 @@ body.light {
       <span class="logo-badge">Opensource</span>
     </div>
     <div class="topbar-right">
-      <div class="privacy-pill">
-        <span class="privacy-dot"></span>
-        NO DATA LEAVES YOUR BROWSER
-      </div>
       <div class="dark-toggle" onclick="toggleTheme()" title="Toggle theme">☀</div>
     </div>
   </header>
