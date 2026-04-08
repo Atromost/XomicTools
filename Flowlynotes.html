@@ -2,173 +2,1707 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flowly Notes — Infinite Canvas Notes</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Flowly Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ==================== VARS & RESET ==================== */
+:root {
+  --ink: #0f0f0f;
+  --ink2: #1a1a1a;
+  --ink3: #3a3a3a;
+  --ink4: #6b6b6b;
+  --ink5: #9b9b9b;
+  --paper: #fafaf9;
+  --paper2: #f0efec;
+  --paper3: #e4e2de;
+  --paper4: #d4d2cd;
+  --accent: #5b47d6;
+  --accent2: #7c6af0;
+  --accent-inv: #ffffff;
+  --border: rgba(0,0,0,0.09);
+  --border2: rgba(0,0,0,0.15);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow: 0 2px 8px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-node: 0 2px 12px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --sidebar-w: 52px;
+  --topbar-h: 48px;
+  --font: 'Geist', system-ui, sans-serif;
+  --mono: 'Geist Mono', monospace;
+  color-scheme: light;
+  --wire-color: rgba(91,71,214,0.4);
+  --wire-glow: 0 0 8px rgba(91,71,214,0.6);
+  --node-selected-glow: 0 0 0 2px rgba(91,71,214,0.4), 0 4px 16px rgba(91,71,214,0.15);
+}
+[data-theme="dark"] {
+  --ink: #f0ede8;
+  --ink2: #d8d4ce;
+  --ink3: #a8a39b;
+  --ink4: #706b62;
+  --ink5: #48443d;
+  --paper: #111110;
+  --paper2: #1a1918;
+  --paper3: #242220;
+  --paper4: #2e2b28;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow: 0 2px 8px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+  --shadow-node: 0 2px 12px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+  --wire-color: rgba(124,106,240,0.5);
+  --wire-glow: 0 0 12px rgba(124,106,240,0.8);
+  --node-selected-glow: 0 0 0 2px rgba(124,106,240,0.6), 0 4px 20px rgba(124,106,240,0.25);
+  color-scheme: dark;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  width:100%; height:100vh; overflow:hidden;
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font); -webkit-font-smoothing:antialiased;
+  touch-action:none;
+}
+::-webkit-scrollbar { width:3px; height:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--paper4); border-radius:2px; }
+
+/* ==================== TOPBAR ==================== */
+#topbar {
+  position:fixed; top:0; left:0; right:0; height:var(--topbar-h);
+  background:var(--paper); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 10px 0 calc(var(--sidebar-w) + 10px);
+  z-index:500; gap:6px; backdrop-filter:blur(8px);
+}
+.top-logo {
+  display:flex; align-items:center; gap:7px;
+  font-family:var(--mono); font-size:0.7rem; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink); padding-right:8px; white-space:nowrap;
+  font-weight:500;
+}
+.logo-mark {
+  width:22px; height:22px; background:var(--accent);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(91,71,214,0.35);
+}
+.logo-inner {
+  width:10px; height:10px;
+  background:white; border-radius:3px; opacity:0.9;
+}
+.top-div { width:1px; height:18px; background:var(--border2); flex-shrink:0; }
+.top-title {
+  background:transparent; border:none; outline:none;
+  color:var(--ink); font-family:var(--font);
+  font-size:0.82rem; font-weight:500; flex:1;
+  min-width:100px; max-width:240px; padding:4px 8px;
+  border-radius:var(--radius-sm); transition:background 0.15s;
+}
+.top-title:hover { background:var(--paper2); }
+.top-title:focus { background:var(--paper3); }
+.top-right { margin-left:auto; display:flex; align-items:center; gap:5px; }
+
+.tb-btn {
+  display:flex; align-items:center; gap:5px; padding:5px 10px;
+  background:var(--paper2); border:1px solid var(--border);
+  border-radius:var(--radius-sm); color:var(--ink3);
+  font-family:var(--font); font-size:0.72rem; font-weight:500;
+  cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  box-shadow:var(--shadow-sm);
+}
+.tb-btn:hover { background:var(--paper3); color:var(--ink); border-color:var(--border2); }
+.tb-btn:active { transform:scale(0.97); }
+.tb-btn.accent-btn {
+  background:var(--accent); color:white; border-color:transparent;
+  box-shadow:0 2px 8px rgba(91,71,214,0.3);
+}
+.tb-btn.accent-btn:hover { background:var(--accent2); }
+.zoom-lbl { font-family:var(--mono); font-size:0.62rem; color:var(--ink4); min-width:34px; text-align:center; }
+.tb-icon-btn {
+  width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+  background:var(--paper2); border:1px solid var(--border); border-radius:var(--radius-sm);
+  color:var(--ink3); cursor:pointer; transition:all 0.15s; font-size:0.8rem;
+}
+.tb-icon-btn:hover { background:var(--paper3); color:var(--ink); }
+
+/* Hamburger Menu */
+.hamburger-btn {
+  width:30px; height:30px; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:4px; background:var(--paper2);
+  border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer;
+  transition:all 0.15s; flex-shrink:0;
+}
+.hamburger-btn:hover { background:var(--paper3); }
+.hamburger-btn span { width:14px; height:1.5px; background:var(--ink3); border-radius:2px; transition:all 0.2s; }
+
+#hamburger-menu {
+  position:fixed; top:calc(var(--topbar-h) + 8px); right:12px; width:220px;
+  background:var(--paper); border:1px solid var(--border2);
+  border-radius:var(--radius-lg); padding:6px;
+  z-index:9999; display:none; box-shadow:var(--shadow-lg);
+}
+#hamburger-menu.visible { display:block; animation:menuIn 0.15s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes menuIn { from { opacity:0; transform:translateY(-8px) scale(0.97); } to { opacity:1; transform:none; } }
+.hmenu-section { padding:4px 6px; font-size:0.62rem; color:var(--ink4); font-family:var(--mono); letter-spacing:0.08em; text-transform:uppercase; margin-top:4px; }
+.hmenu-item {
+  display:flex; align-items:center; gap:9px; padding:8px 10px;
+  border-radius:var(--radius-sm); font-size:0.78rem; color:var(--ink2);
+  cursor:pointer; transition:all 0.1s; font-weight:500;
+}
+.hmenu-item:hover { background:var(--paper2); color:var(--ink); }
+.hmenu-item .hm-icon { width:18px; height:18px; display:flex; align-items:center; justify-content:center; opacity:0.7; flex-shrink:0; }
+.hmenu-item .hm-kbd { margin-left:auto; font-family:var(--mono); font-size:0.6rem; color:var(--ink4); background:var(--paper3); padding:2px 5px; border-radius:3px; }
+.hmenu-div { height:1px; background:var(--border); margin:4px 0; }
+.hmenu-item.danger { color:#e03535; }
+.hmenu-item.danger:hover { background:rgba(220,50,50,0.08); }
+
+@media (max-width:600px) {
+  .tb-txt { display:none; }
+  #topbar { padding-left:calc(var(--sidebar-w) + 4px); padding-right:6px; gap:3px; }
+  .tb-btn { padding:5px 7px; }
+}
+
+/* ==================== SIDEBAR ==================== */
+#sidebar {
+  position:fixed; top:var(--topbar-h); left:0; bottom:0;
+  width:var(--sidebar-w); background:var(--paper);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; align-items:center;
+  padding:8px 0; z-index:400; gap:2px; overflow:hidden;
+}
+.s-grp { display:flex; flex-direction:column; gap:2px; width:100%; padding:0 6px; }
+.s-div { width:60%; height:1px; background:var(--border2); margin:6px auto; }
+.s-btn {
+  width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+  background:transparent; border:1px solid transparent;
+  border-radius:var(--radius-sm); color:var(--ink4);
+  cursor:pointer; transition:all 0.15s; position:relative; margin:0 auto;
+}
+.s-btn:hover { background:var(--paper2); color:var(--ink); border-color:var(--border); box-shadow:var(--shadow-sm); }
+.s-btn.active { background:var(--accent); color:white; border-color:transparent; box-shadow:0 2px 8px rgba(91,71,214,0.3); }
+.s-btn.node-add { height:36px; }
+
+/* Tooltips — visible and styled */
+.s-btn::after {
+  content:attr(data-tip);
+  position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%);
+  background:var(--ink); color:var(--accent-inv);
+  padding:4px 10px; border-radius:6px;
+  font-family:var(--font); font-size:0.68rem; font-weight:500;
+  white-space:nowrap; opacity:0; pointer-events:none;
+  transition:opacity 0.15s; z-index:9999;
+  box-shadow:var(--shadow);
+}
+.s-btn::before {
+  content:''; position:absolute; left:calc(100% + 5px); top:50%; transform:translateY(-50%);
+  border:4px solid transparent; border-right-color:var(--ink);
+  opacity:0; pointer-events:none; transition:opacity 0.15s; z-index:9999;
+}
+.s-btn:hover::after, .s-btn:hover::before { opacity:1; }
+
+/* ==================== CANVAS ==================== */
+#canvas-wrapper {
+  position:fixed; top:var(--topbar-h); left:var(--sidebar-w); right:0; bottom:0;
+  overflow:hidden; background:var(--paper); cursor:default;
+}
+/* Refined dot grid */
+#canvas-wrapper::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, var(--ink5) 1px, transparent 1px);
+  background-size:24px 24px; pointer-events:none; z-index:0; opacity:0.35;
+}
+[data-theme="dark"] #canvas-wrapper::before { opacity:0.2; }
+#canvas-viewport { position:absolute; inset:0; z-index:1; overflow:hidden; }
+#canvas-surface { position:absolute; width:100%; height:100%; transform-origin:0 0; }
+#connection-canvas { position:absolute; inset:0; z-index:2; pointer-events:none; }
+#draw-canvas { position:absolute; inset:0; z-index:10; pointer-events:none; }
+#draw-canvas.active { pointer-events:all; cursor:crosshair; }
+
+/* ==================== NODES ==================== */
+.node {
+  position:absolute; min-width:200px;
+  background:var(--paper); border:1px solid var(--border2);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-node);
+  cursor:grab; z-index:10; overflow:visible; user-select:none;
+  transition:box-shadow 0.2s, border-color 0.2s;
+  animation:nodeIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes nodeIn { from { transform:scale(0.88); opacity:0; } to { transform:scale(1); opacity:1; } }
+.node:active { cursor:grabbing; }
+.node.selected {
+  border-color:var(--accent);
+  box-shadow:var(--node-selected-glow);
+}
+.node.pinned { border-style:dashed; }
+.node:hover { border-color:var(--border2); box-shadow:var(--shadow); }
+.node.selected:hover { border-color:var(--accent); box-shadow:var(--node-selected-glow); }
+
+/* connect dots */
+.connect-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--accent); border:2px solid var(--paper);
+  position:absolute; cursor:crosshair;
+  transition:all 0.15s; z-index:20; opacity:0;
+  box-shadow:0 0 0 1px var(--accent);
+}
+.node:hover .connect-dot { opacity:1; }
+.connect-dot:hover { transform:scale(1.6) !important; box-shadow:0 0 8px var(--accent); }
+.connect-dot.top { top:-5px; left:50%; transform:translateX(-50%); }
+.connect-dot.bottom { bottom:-5px; left:50%; transform:translateX(-50%); }
+.connect-dot.left { left:-5px; top:50%; transform:translateY(-50%); }
+.connect-dot.right { right:-5px; top:50%; transform:translateY(-50%); }
+.connect-dot:hover.top { transform:translateX(-50%) scale(1.6); }
+.connect-dot:hover.bottom { transform:translateX(-50%) scale(1.6); }
+.connect-dot:hover.left { transform:translateY(-50%) scale(1.6); }
+.connect-dot:hover.right { transform:translateY(-50%) scale(1.6); }
+
+/* resize */
+.resize-handle {
+  position:absolute; bottom:0; right:0;
+  width:18px; height:18px; cursor:nwse-resize; opacity:0; transition:opacity 0.15s;
+  display:flex; align-items:flex-end; justify-content:flex-end; padding:4px;
+}
+.node:hover .resize-handle { opacity:1; }
+.resize-handle::after {
+  content:''; width:8px; height:8px;
+  border-right:2px solid var(--ink4); border-bottom:2px solid var(--ink4);
+  border-radius:0 0 3px 0;
+}
+
+/* node header */
+.node-header {
+  display:flex; align-items:center; gap:6px;
+  padding:9px 12px 7px; border-bottom:1px solid var(--border);
+  cursor:grab; border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.node-header:active { cursor:grabbing; }
+.node-icon { width:16px; height:16px; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0; }
+.node-type-tag {
+  font-family:var(--mono); font-size:0.58rem; letter-spacing:0.08em;
+  text-transform:uppercase; color:var(--ink4); background:var(--paper2);
+  padding:2px 5px; border-radius:3px; font-weight:500;
+}
+.node-title-input {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--ink); font-family:var(--font); font-size:0.78rem; font-weight:600;
+  min-width:0; letter-spacing:-0.01em;
+}
+.node-title-input::placeholder { color:var(--ink5); }
+.node-actions { display:flex; gap:2px; opacity:0; transition:opacity 0.15s; }
+.node:hover .node-actions { opacity:1; }
+.node-action-btn {
+  width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+  background:transparent; border:none; border-radius:4px;
+  color:var(--ink4); cursor:pointer; font-size:0.65rem; transition:all 0.12s;
+}
+.node-action-btn:hover { background:var(--paper3); color:var(--ink); }
+.node-action-btn.danger:hover { color:#e03535; background:rgba(220,50,50,0.08); }
+.node-body { padding:10px 12px 12px; }
+
+/* NOTE */
+.text-toolbar {
+  display:flex; gap:2px; padding:5px 10px;
+  border-bottom:1px solid var(--border); flex-wrap:wrap; background:var(--paper2);
+}
+.fmt-btn {
+  width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+  background:transparent; border:none; border-radius:4px;
+  color:var(--ink4); cursor:pointer; font-size:0.7rem; font-weight:700;
+  transition:all 0.1s;
+}
+.fmt-btn:hover { background:var(--paper3); color:var(--ink); }
+.fmt-sep { width:1px; height:14px; background:var(--border2); margin:0 3px; align-self:center; }
+.note-editor {
+  width:100%; min-height:80px; background:transparent; border:none; outline:none;
+  resize:none; color:var(--ink); font-family:var(--font); font-size:0.8rem;
+  line-height:1.7; user-select:text; overflow:hidden; word-break:break-word;
+}
+.note-editor:empty::before { content:'Start writing...'; color:var(--ink5); }
+
+/* WRITER */
+.writer-editor {
+  width:100%; min-height:180px; background:transparent; border:none; outline:none;
+  resize:none; color:var(--ink); font-family:var(--font); font-size:0.9rem;
+  line-height:1.85; user-select:text; overflow:hidden; word-break:break-word;
+  letter-spacing:-0.005em;
+}
+.writer-editor:empty::before { content:'Write freely. No limits.'; color:var(--ink5); font-style:italic; }
+.writer-wordcount { padding:4px 12px 6px; font-family:var(--mono); font-size:0.6rem; color:var(--ink4); border-top:1px solid var(--border); }
+
+/* TODO */
+.todo-progress { height:2px; background:var(--paper3); border-radius:2px; margin:4px 0; overflow:hidden; }
+.todo-progress-fill { height:100%; background:var(--accent); border-radius:2px; transition:width 0.3s ease; }
+.todo-stats { font-family:var(--mono); font-size:0.62rem; color:var(--ink4); margin-bottom:8px; }
+.todo-list { display:flex; flex-direction:column; gap:4px; }
+.todo-item { display:flex; align-items:flex-start; gap:8px; padding:4px 5px; border-radius:6px; transition:background 0.1s; }
+.todo-item:hover { background:var(--paper2); }
+.todo-checkbox {
+  width:15px; height:15px; flex-shrink:0; margin-top:2px;
+  border:1.5px solid var(--paper4); border-radius:4px;
+  background:transparent; cursor:pointer; appearance:none;
+  position:relative; transition:all 0.15s;
+}
+.todo-checkbox:checked { background:var(--accent); border-color:var(--accent); box-shadow:0 1px 4px rgba(91,71,214,0.3); }
+.todo-checkbox:checked::after {
+  content:''; position:absolute; left:3px; top:0px;
+  width:5px; height:8px; border:2px solid white;
+  border-left:none; border-top:none; transform:rotate(45deg);
+}
+.todo-text {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--ink); font-family:var(--font); font-size:0.78rem;
+  line-height:1.5; resize:none; overflow:hidden; min-height:20px; user-select:text;
+}
+.todo-text.done { text-decoration:line-through; color:var(--ink4); }
+.todo-delete { width:16px; height:16px; background:transparent; border:none; color:var(--ink4); cursor:pointer; font-size:0.65rem; opacity:0; transition:opacity 0.1s; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:3px; }
+.todo-item:hover .todo-delete { opacity:1; }
+.todo-item:hover .todo-delete:hover { background:rgba(220,50,50,0.1); color:#e03535; }
+.todo-add-btn {
+  display:flex; align-items:center; gap:6px; width:100%; padding:6px 5px;
+  background:transparent; border:none; border-top:1px solid var(--border);
+  color:var(--ink4); font-size:0.72rem; cursor:pointer; margin-top:5px;
+  border-radius:0 0 8px 8px; font-family:var(--font); transition:color 0.1s;
+}
+.todo-add-btn:hover { color:var(--accent); }
+
+/* STICKY */
+.node-sticky { background:#fefce8; border-color:rgba(200,170,0,0.2); }
+[data-theme="dark"] .node-sticky { background:#1a1800; border-color:rgba(200,170,0,0.15); }
+.sticky-strip { height:3px; border-radius:var(--radius-lg) var(--radius-lg) 0 0; background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+.sticky-body {
+  padding:10px 12px; min-height:100px; width:100%; background:transparent;
+  border:none; outline:none; resize:none;
+  color:#78350f; font-family:var(--font); font-size:0.82rem; line-height:1.7;
+  overflow:hidden; user-select:text;
+}
+[data-theme="dark"] .sticky-body { color:#fcd34d; }
+.sticky-body::placeholder { color:rgba(120,53,15,0.4); }
+[data-theme="dark"] .sticky-body::placeholder { color:rgba(252,211,77,0.3); }
+
+/* IMAGE */
+.image-drop-zone {
+  min-height:120px; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:8px; padding:24px 20px;
+  border:1.5px dashed var(--border2); margin:10px;
+  border-radius:var(--radius); cursor:pointer; transition:all 0.2s;
+  color:var(--ink4); font-size:0.74rem; text-align:center;
+}
+.image-drop-zone:hover { border-color:var(--accent); color:var(--accent); background:rgba(91,71,214,0.04); }
+.node-image .node-body { padding:0; overflow:hidden; border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+.node-image img { width:100%; height:auto; display:block; border-radius:0 0 var(--radius-lg) var(--radius-lg); object-fit:cover; max-height:300px; }
+.image-caption { padding:6px 12px; background:transparent; border:none; border-top:1px solid var(--border); outline:none; width:100%; color:var(--ink4); font-family:var(--mono); font-size:0.68rem; user-select:text; }
+
+/* EMBED */
+.embed-input-area { padding:10px; display:flex; gap:6px; align-items:center; }
+.embed-url-input { flex:1; background:var(--paper2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px 10px; color:var(--ink); font-family:var(--mono); font-size:0.7rem; outline:none; user-select:text; transition:border-color 0.15s; }
+.embed-url-input:focus { border-color:var(--accent); }
+.embed-go-btn { padding:6px 14px; background:var(--accent); border:none; border-radius:var(--radius-sm); color:white; font-family:var(--font); font-size:0.72rem; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.embed-go-btn:hover { background:var(--accent2); }
+.node-embed iframe { width:100%; height:200px; border:none; border-top:1px solid var(--border); border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+
+/* HEADING */
+.node-heading { min-width:180px; background:transparent; border:none; box-shadow:none; }
+.node-heading:hover { border-color:transparent; box-shadow:none; }
+.node-heading.selected { border:1.5px solid var(--accent); border-radius:var(--radius); box-shadow:var(--node-selected-glow); }
+.heading-text {
+  background:transparent; border:none; outline:none;
+  color:var(--ink); font-family:var(--font);
+  font-size:1.6rem; font-weight:700; width:100%; padding:6px 10px;
+  user-select:text; letter-spacing:-0.025em; line-height:1.2;
+}
+.heading-text::placeholder { color:var(--ink5); }
+
+/* ==================== CONTEXT MENUS ==================== */
+.context-menu {
+  position:fixed; background:var(--paper); border:1px solid var(--border2);
+  border-radius:var(--radius-lg); padding:6px; min-width:180px;
+  z-index:9999; display:none; box-shadow:var(--shadow-lg);
+}
+.context-menu.visible { display:block; animation:menuIn 0.14s ease; }
+.ctx-item {
+  display:flex; align-items:center; gap:8px; padding:7px 10px;
+  border-radius:var(--radius-sm); font-size:0.77rem; font-family:var(--font);
+  color:var(--ink2); cursor:pointer; transition:all 0.1s; font-weight:500;
+}
+.ctx-item:hover { background:var(--paper2); color:var(--ink); }
+.ctx-item.danger { color:#e03535; }
+.ctx-item.danger:hover { background:rgba(220,50,50,0.08); }
+.ctx-divider { height:1px; background:var(--border); margin:4px 0; }
+
+/* ==================== COLOR PICKER ==================== */
+.color-picker-popup {
+  position:fixed; background:var(--paper); border:1px solid var(--border2);
+  border-radius:var(--radius); padding:12px; z-index:9999; display:none;
+  box-shadow:var(--shadow-lg);
+}
+.color-picker-popup.visible { display:block; animation:menuIn 0.14s ease; }
+.color-picker-popup h4 { font-size:0.68rem; color:var(--ink4); font-family:var(--mono); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px; }
+.color-swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+.swatch { width:30px; height:30px; border-radius:6px; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
+.swatch:hover { transform:scale(1.15); border-color:var(--accent); }
+
+/* ==================== STATUSBAR ==================== */
+#statusbar {
+  position:fixed; bottom:0; left:0; right:0; height:24px;
+  background:var(--paper); border-top:1px solid var(--border);
+  display:flex; align-items:center; padding:0 10px 0 calc(var(--sidebar-w) + 10px);
+  z-index:500; font-family:var(--mono); font-size:0.61rem; color:var(--ink4); gap:0;
+}
+.sb-sep { margin:0 8px; opacity:0.4; }
+.sb-right { margin-left:auto; display:flex; align-items:center; gap:4px; }
+.sb-kbd { display:inline-block; padding:1px 5px; background:var(--paper2); border:1px solid var(--border); border-radius:3px; font-family:var(--mono); font-size:0.58rem; color:var(--ink4); }
+@media (max-width:600px) { .sb-right { display:none; } }
+
+/* ==================== TOAST ==================== */
+#toast {
+  position:fixed; bottom:36px; left:50%;
+  transform:translateX(-50%) translateY(10px);
+  background:var(--ink); border-radius:20px;
+  padding:7px 18px; font-family:var(--font); font-size:0.75rem; font-weight:500;
+  color:var(--accent-inv); z-index:9999; opacity:0;
+  transition:all 0.25s; pointer-events:none; box-shadow:var(--shadow-lg);
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ==================== SELECTION BOX ==================== */
+.selection-box {
+  position:absolute; border:1.5px solid var(--accent);
+  background:rgba(91,71,214,0.05); pointer-events:none; z-index:50; border-radius:4px;
+}
+
+/* ==================== DRAW TOOLBAR ==================== */
+#draw-toolbar {
+  position:fixed; bottom:34px; left:50%; transform:translateX(-50%);
+  background:var(--paper); border:1px solid var(--border2); border-radius:30px;
+  padding:7px 16px; display:flex; align-items:center; gap:9px;
+  z-index:800; opacity:0; pointer-events:none; transition:opacity 0.2s;
+  box-shadow:var(--shadow-lg);
+}
+#draw-toolbar.visible { opacity:1; pointer-events:all; }
+.draw-color { width:18px; height:18px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
+.draw-color:hover, .draw-color.active { border-color:var(--accent); transform:scale(1.2); }
+.draw-size { width:60px; accent-color:var(--accent); }
+.draw-lbl { font-family:var(--mono); font-size:0.62rem; color:var(--ink4); }
+.draw-tool-btn { padding:4px 10px; background:transparent; border:1px solid var(--border); border-radius:20px; color:var(--ink3); font-family:var(--font); font-size:0.68rem; cursor:pointer; transition:all 0.15s; }
+.draw-tool-btn:hover, .draw-tool-btn.active { background:var(--accent); color:white; border-color:transparent; }
+.draw-clear-btn { padding:4px 10px; background:transparent; border:1px solid rgba(220,50,50,0.3); border-radius:20px; color:#e03535; font-family:var(--font); font-size:0.68rem; cursor:pointer; }
+
+/* ==================== FOCUS MODE ==================== */
+body.focus-mode #topbar,
+body.focus-mode #sidebar,
+body.focus-mode #statusbar { opacity:0; pointer-events:none; }
+body.focus-mode #canvas-wrapper { top:0; left:0; right:0; bottom:0; }
+
+/* panning */
+body.panning { cursor:grabbing !important; }
+body.panning * { cursor:grabbing !important; }
+
+/* mobile */
+@media (pointer:coarse) {
+  .s-btn { width:46px; height:46px; }
+  .node-action-btn { width:26px; height:26px; font-size:0.8rem; }
+  .node-actions { opacity:1; }
+  .connect-dot { opacity:1; width:14px; height:14px; }
+  .resize-handle { opacity:1; width:24px; height:24px; }
+}
+
+@media (max-width:600px) { :root { --sidebar-w:46px; } }
+</style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="app-logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="3" stroke="#cdff00" stroke-width="1.5"/><circle cx="19" cy="5" r="3" stroke="#cdff00" stroke-width="1.5"/><circle cx="19" cy="19" r="3" stroke="#cdff00" stroke-width="1.5"/><line x1="7.8" y1="10.8" x2="16.2" y2="6.2" stroke="#cdff00" stroke-width="1"/><line x1="7.8" y1="13.2" x2="16.2" y2="17.8" stroke="#cdff00" stroke-width="1"/></svg>
-      <span>Flowly Notes</span>
-    </div>
-    <div class="topbar-divider"></div>
-    <div class="file-actions">
-      <button class="tb-btn" id="btn-new" title="New Canvas (Ctrl+N)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> New</button>
-      <button class="tb-btn" id="btn-save" title="Save (Ctrl+S)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save</button>
-      <button class="tb-btn" id="btn-load" title="Load (Ctrl+O)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Load</button>
-      <button class="tb-btn" id="btn-export" title="Export JSON"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export</button>
-    </div>
+<!-- TOPBAR -->
+<header id="topbar">
+  <div class="top-logo">
+    <div class="logo-mark"><div class="logo-inner"></div></div>
+    <span class="tb-txt">Flowly</span>
   </div>
-  <div class="topbar-center">
-    <input class="canvas-title-input" id="canvas-title" value="Untitled Canvas" spellcheck="false" />
-  </div>
-  <div class="topbar-right">
-    <div class="zoom-controls">
-      <button class="tb-btn icon-only" id="btn-zoom-out" title="Zoom Out (-)">−</button>
-      <span class="zoom-label" id="zoom-label">100%</span>
-      <button class="tb-btn icon-only" id="btn-zoom-in" title="Zoom In (+)">+</button>
-      <button class="tb-btn icon-only" id="btn-zoom-reset" title="Reset Zoom (0)">⊙</button>
+  <div class="top-div"></div>
+  <input class="top-title" id="canvas-title" value="Untitled Canvas" spellcheck="false">
+  <div class="top-right">
+    <div style="display:flex;align-items:center;gap:2px;">
+      <button class="tb-icon-btn" id="btn-zoom-out" title="Zoom out">−</button>
+      <span class="zoom-lbl" id="zoom-label">100%</span>
+      <button class="tb-icon-btn" id="btn-zoom-in" title="Zoom in">+</button>
     </div>
-    <div class="topbar-divider"></div>
-    
-    <button class="tb-btn" id="btn-drawkiboard" title="Open DrawkiBoard">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 20h9"></path>
-        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-      </svg>
-      DrawkiBoard
+    <button class="tb-btn" id="btn-fit" title="Fit all to screen">⤢ <span class="tb-txt">Fit</span></button>
+    <button class="tb-icon-btn" id="btn-home" title="Back to home">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </button>
+    <button class="tb-icon-btn" id="btn-theme" title="Toggle dark/light mode">
+      <svg width="14" height="14" id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="tb-btn accent-btn" id="btn-present">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      <span class="tb-txt">Focus</span>
+    </button>
+    <div class="hamburger-btn" id="btn-hamburger" title="Menu">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
 
-    <button class="tb-btn accent" id="btn-present" title="Focus Mode (Ctrl+.)">Focus</button>
-    <div class="topbar-divider"></div>
-    <button class="tb-btn icon-only" id="btn-fit" title="Fit to Screen (F)">⤢</button>
-    <button class="tb-btn" id="nav-support-btn" title="Support">Support</button>
+<!-- HAMBURGER MENU -->
+<div id="hamburger-menu">
+  <div class="hmenu-section">File</div>
+  <div class="hmenu-item" data-action="new">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+    New Canvas <span class="hm-kbd">Ctrl+N</span>
+  </div>
+  <div class="hmenu-item" data-action="save">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></span>
+    Save as JSON <span class="hm-kbd">Ctrl+S</span>
+  </div>
+  <div class="hmenu-item" data-action="load">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+    Load File <span class="hm-kbd">Ctrl+O</span>
+  </div>
+  <div class="hmenu-div"></div>
+  <div class="hmenu-section">Edit</div>
+  <div class="hmenu-item" data-action="undo">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M3 13A9 9 0 1 0 6 6.4"/></svg></span>
+    Undo <span class="hm-kbd">Ctrl+Z</span>
+  </div>
+  <div class="hmenu-item" data-action="redo">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M21 13A9 9 0 1 1 18 6.4"/></svg></span>
+    Redo <span class="hm-kbd">Ctrl+Y</span>
+  </div>
+  <div class="hmenu-item" data-action="select-all">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+    Select All <span class="hm-kbd">Ctrl+A</span>
+  </div>
+  <div class="hmenu-item" data-action="clear-conn">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+    Clear Connections
+  </div>
+  <div class="hmenu-div"></div>
+  <div class="hmenu-item" data-action="zoom-reset">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    Reset Zoom <span class="hm-kbd">0</span>
+  </div>
+  <div class="hmenu-div"></div>
+  <div class="hmenu-item danger" data-action="clear-all">
+    <span class="hm-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span>
+    Clear Canvas
   </div>
 </div>
 
-<div class="sidebar" id="sidebar">
-  <div class="tool-group">
-    <button class="tool-btn active" data-tool="select" title="Select (V)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3l14 9-7 1-4 7z"/></svg>
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="s-grp">
+    <button class="s-btn active" data-tool="select" data-tip="Select (V)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-4 7z"/></svg>
     </button>
-    <button class="tool-btn" data-tool="pan" title="Pan (Space+Drag or H)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8l-1.6-1.6C4.1 12 3 12.5 3 13.7V16c0 2.6 1.8 4.8 4.3 5.5L8 22h8c2.2 0 4-1.8 4-4v-5a2 2 0 0 0-4 0v1"/></svg>
+    <button class="s-btn" data-tool="pan" data-tip="Pan (H / Space)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8l-1.6-1.6C4.1 12 3 12.5 3 13.7V16c0 2.6 1.8 4.8 4.3 5.5L8 22h8c2.2 0 4-1.8 4-4v-5a2 2 0 0 0-4 0v1"/></svg>
     </button>
-    <button class="tool-btn" data-tool="connect" title="Connect Nodes (C)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><line x1="7" y1="12" x2="17" y2="12" stroke-dasharray="3 2"/></svg>
+    <button class="s-btn" data-tool="connect" data-tip="Connect Nodes (C)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><line x1="7" y1="12" x2="17" y2="12" stroke-dasharray="3 2"/></svg>
     </button>
-    <button class="tool-btn" data-tool="draw" title="Draw (D)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-    </button>
-  </div>
-  <div class="tool-divider"></div>
-  <div class="tool-group node-types">
-    <button class="tool-btn node-add" data-node="note" title="Note Node (N)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg>
-    </button>
-    <button class="tool-btn node-add" data-node="todo" title="Todo Node (T)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    </button>
-    <button class="tool-btn node-add" data-node="sticky" title="Sticky Node (S)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/></svg>
-    </button>
-    <button class="tool-btn node-add" data-node="image" title="Image Node (I)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-    </button>
-    <button class="tool-btn node-add" data-node="embed" title="Embed Node (E)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-    </button>
-    <button class="tool-btn node-add" data-node="heading" title="Heading Node">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+    <button class="s-btn" data-tool="draw" data-tip="Freehand Draw (D)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
     </button>
   </div>
-  <div class="tool-divider"></div>
-  <div class="tool-group">
-    <button class="tool-btn" id="btn-undo" title="Undo (Ctrl+Z)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7v6h6"/><path d="M3 13A9 9 0 1 0 6 6.4"/></svg>
+  <div class="s-div"></div>
+  <div class="s-grp">
+    <button class="s-btn node-add" data-node="note" data-tip="Note (N)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg>
     </button>
-    <button class="tool-btn" id="btn-redo" title="Redo (Ctrl+Y)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 7v6h-6"/><path d="M21 13A9 9 0 1 1 18 6.4"/></svg>
+    <button class="s-btn node-add" data-node="writer" data-tip="Writer — Free Write (W)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
     </button>
-    <button class="tool-btn" id="btn-clear-connections" title="Clear Selected Connections">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="s-btn node-add" data-node="todo" data-tip="Todo List (T)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    </button>
+    <button class="s-btn node-add" data-node="sticky" data-tip="Sticky Note (S)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/></svg>
+    </button>
+    <button class="s-btn node-add" data-node="image" data-tip="Image Block (I)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </button>
+    <button class="s-btn node-add" data-node="embed" data-tip="Embed URL (E)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    </button>
+    <button class="s-btn node-add" data-node="heading" data-tip="Heading / Title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
     </button>
   </div>
-  <div class="sidebar-shortcuts">
-    <div class="sc-item"><kbd>V</kbd> Select</div>
-    <div class="sc-item"><kbd>H</kbd> Pan</div>
-    <div class="sc-item"><kbd>C</kbd> Connect</div>
-    <div class="sc-item"><kbd>D</kbd> Draw</div>
-    <div class="sc-item"><kbd>Del</kbd> Delete</div>
-    <div class="sc-item"><kbd>Space</kbd> Pan</div>
+  <div class="s-div"></div>
+  <div class="s-grp">
+    <button class="s-btn" id="btn-undo" data-tip="Undo (Ctrl+Z)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M3 13A9 9 0 1 0 6 6.4"/></svg>
+    </button>
+    <button class="s-btn" id="btn-redo" data-tip="Redo (Ctrl+Y)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M21 13A9 9 0 1 1 18 6.4"/></svg>
+    </button>
   </div>
-</div>
+</aside>
 
-<div class="canvas-wrapper" id="canvas-wrapper">
+<!-- CANVAS -->
+<div id="canvas-wrapper">
   <canvas id="connection-canvas"></canvas>
-  <div class="canvas-viewport" id="viewport">
-    <div class="canvas-surface" id="canvas"></div>
+  <div id="canvas-viewport">
+    <div id="canvas-surface"></div>
   </div>
   <canvas id="draw-canvas"></canvas>
 </div>
 
+<!-- CONTEXT MENUS -->
 <div class="context-menu" id="context-menu">
-  <div class="ctx-item" data-action="add-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg> Note</div>
-  <div class="ctx-item" data-action="add-todo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Todo List</div>
-  <div class="ctx-item" data-action="add-sticky"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/></svg> Sticky</div>
-  <div class="ctx-item" data-action="add-image"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image</div>
-  <div class="ctx-item" data-action="add-embed"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Embed URL</div>
-  <div class="ctx-item" data-action="add-heading"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg> Heading</div>
+  <div class="ctx-item" data-action="add-note">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg> Note
+  </div>
+  <div class="ctx-item" data-action="add-writer">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Writer
+  </div>
+  <div class="ctx-item" data-action="add-todo">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Todo
+  </div>
+  <div class="ctx-item" data-action="add-sticky">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/></svg> Sticky
+  </div>
+  <div class="ctx-item" data-action="add-image">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
+  </div>
+  <div class="ctx-item" data-action="add-embed">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Embed
+  </div>
+  <div class="ctx-item" data-action="add-heading">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg> Heading
+  </div>
   <div class="ctx-divider"></div>
-  <div class="ctx-item" data-action="paste"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Paste Here</div>
   <div class="ctx-item" data-action="select-all">Select All</div>
   <div class="ctx-item danger" data-action="clear-all">Clear Canvas</div>
 </div>
 
 <div class="context-menu" id="node-context-menu">
-  <div class="ctx-item" data-action="pin-node">📌 Pin Node</div>
+  <div class="ctx-item" data-action="pin-node">📌 Pin / Unpin</div>
   <div class="ctx-item" data-action="color-node">🎨 Change Color</div>
   <div class="ctx-item" data-action="duplicate-node">⧉ Duplicate</div>
   <div class="ctx-item" data-action="copy-node">Copy</div>
   <div class="ctx-divider"></div>
-  <div class="ctx-item danger" data-action="delete-node">Delete Node</div>
+  <div class="ctx-item danger" data-action="delete-node">Delete</div>
 </div>
 
 <div class="color-picker-popup" id="color-picker-popup">
+  <h4>Node Color</h4>
   <div class="color-swatches">
-    <div class="swatch" data-color="#1a1a1a" style="background:#1a1a1a" title="Default Dark"></div>
-    <div class="swatch" data-color="#1a2a1a" style="background:#1a2a1a" title="Forest"></div>
-    <div class="swatch" data-color="#1a1a2a" style="background:#1a1a2a" title="Midnight"></div>
-    <div class="swatch" data-color="#2a1a1a" style="background:#2a1a1a" title="Crimson"></div>
-    <div class="swatch" data-color="#2a2a1a" style="background:#2a2a1a" title="Gold"></div>
-    <div class="swatch" data-color="#2a1a2a" style="background:#2a1a2a" title="Purple"></div>
-    <div class="swatch swatch-lime" data-color="#0d1f00" style="background:#0d1f00" title="Neon"></div>
-    <div class="swatch" data-color="#1a1500" style="background:#1a1500" title="Amber"></div>
+    <div class="swatch" data-color="" style="background:var(--paper);border:1.5px solid var(--border2)" title="Default"></div>
+    <div class="swatch" data-color="#e8f4e8" style="background:#e8f4e8" title="Mint"></div>
+    <div class="swatch" data-color="#e8eef8" style="background:#e8eef8" title="Sky"></div>
+    <div class="swatch" data-color="#f0e8f8" style="background:#f0e8f8" title="Lavender"></div>
+    <div class="swatch" data-color="#f8e8e8" style="background:#f8e8e8" title="Rose"></div>
+    <div class="swatch" data-color="#fef9e7" style="background:#fef9e7" title="Cream"></div>
+    <div class="swatch" data-color="#1a1a1a" style="background:#1a1a1a" title="Dark"></div>
+    <div class="swatch" data-color="#0e1a0e" style="background:#0e1a0e" title="Forest"></div>
   </div>
 </div>
 
-<div class="statusbar">
-  <span id="status-tool">Tool: Select</span>
-  <span class="statusbar-sep">·</span>
+<!-- STATUSBAR -->
+<div id="statusbar">
+  <span id="status-tool">Select</span>
+  <span class="sb-sep">·</span>
   <span id="status-nodes">0 nodes</span>
-  <span class="statusbar-sep">·</span>
-  <span id="status-connections">0 connections</span>
-  <span class="statusbar-sep">·</span>
-  <span id="status-hint">Right-click canvas to add nodes</span>
-  <div class="statusbar-right">
-    <kbd>Ctrl+S</kbd> Save &nbsp; <kbd>Del</kbd> Delete &nbsp; <kbd>Space</kbd> Pan
+  <span class="sb-sep">·</span>
+  <span id="status-conn">0 connections</span>
+  <div class="sb-right">
+    <span class="sb-kbd">Ctrl+S</span> Save &nbsp;
+    <span class="sb-kbd">Del</span> Delete &nbsp;
+    <span class="sb-kbd">Space</span> Pan &nbsp;
+    <span class="sb-kbd">Ctrl+Z</span> Undo
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- TOAST -->
+<div id="toast"></div>
 
+<!-- HIDDEN INPUTS -->
 <input type="file" id="file-input" accept=".json" style="display:none">
 <input type="file" id="image-file-input" accept="image/*" style="display:none">
 
-<script src="script.js"></script>
+<script>
+/* ===================================================
+   FLOWLY NOTES — Full App Logic
+   =================================================== */
+const state = {
+  nodes:[], connections:[], selectedNodes:new Set(),
+  tool:'select', zoom:1, panX:0, panY:0,
+  dragging:null, resizing:null, connecting:null,
+  isPanning:false, panStart:null, isSpaceDown:false,
+  selectionBox:null, undoStack:[], redoStack:[],
+  nodeCounter:0, connCounter:0, clipboard:null,
+  contextNode:null, rightClickPos:{x:0,y:0},
+  touchStart:null, pinchStartDist:null, pinchStartZoom:1,
+  touchDragNode:null, touchDragStart:null,
+};
+
+const canvasSurface = document.getElementById('canvas-surface');
+const viewport = document.getElementById('canvas-viewport');
+const wrapper = document.getElementById('canvas-wrapper');
+const connCanvas = document.getElementById('connection-canvas');
+const drawCanvas = document.getElementById('draw-canvas');
+const ctx = connCanvas.getContext('2d');
+const dctx = drawCanvas.getContext('2d');
+
+function init() {
+  loadTheme();
+  resizeCanvases();
+  updateTransform();
+  setupEvents();
+  setupTopbar();
+  setupSidebar();
+  setupContextMenus();
+  setupDrawing();
+  setupKeyboard();
+  setupTouch();
+  loadFromStorage();
+  renderConnections();
+  updateStatus();
+}
+
+function resizeCanvases() {
+  const r = wrapper.getBoundingClientRect();
+  connCanvas.width = drawCanvas.width = r.width;
+  connCanvas.height = drawCanvas.height = r.height;
+}
+window.addEventListener('resize', () => { resizeCanvases(); renderConnections(); });
+
+function updateTransform() {
+  canvasSurface.style.transform = `translate(${state.panX}px,${state.panY}px) scale(${state.zoom})`;
+  document.getElementById('zoom-label').textContent = Math.round(state.zoom * 100) + '%';
+  renderConnections();
+}
+
+function screenToCanvas(sx, sy) {
+  const r = wrapper.getBoundingClientRect();
+  return { x:(sx - r.left - state.panX) / state.zoom, y:(sy - r.top - state.panY) / state.zoom };
+}
+
+// ===== NODE CREATION =====
+function createNode(type, x, y, data={}) {
+  saveUndo();
+  const id = 'node_' + (++state.nodeCounter);
+  const defs = {
+    note:    { w:260, title:'Note' },
+    writer:  { w:320, title:'Writer' },
+    todo:    { w:240, title:'Todo' },
+    sticky:  { w:220, title:'Sticky' },
+    image:   { w:260, title:'Image' },
+    embed:   { w:300, title:'Embed' },
+    heading: { w:320, title:'' },
+  };
+  const def = defs[type] || defs.note;
+  const node = {
+    id, type, x:x - def.w/2, y:y - 30,
+    w:data.w || def.w, pinned:false, color:data.color||'',
+    title:data.title !== undefined ? data.title : def.title, ...data
+  };
+  state.nodes.push(node);
+  renderNode(node);
+  updateStatus(); autoSave();
+  return node;
+}
+
+function getEmbedUrl(url) {
+  if (!url) return '';
+  const yt = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const spot = url.match(/spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
+  if (spot) return `https://open.spotify.com/embed/${spot[1]}/${spot[2]}`;
+  const vim = url.match(/vimeo\.com\/(\d+)/);
+  if (vim) return `https://player.vimeo.com/video/${vim[1]}`;
+  return url;
+}
+
+function buildNodeHTML(node) {
+  const dots = `
+    <div class="connect-dot top" data-dir="top"></div>
+    <div class="connect-dot bottom" data-dir="bottom"></div>
+    <div class="connect-dot left" data-dir="left"></div>
+    <div class="connect-dot right" data-dir="right"></div>`;
+  const resize = `<div class="resize-handle"></div>`;
+
+  const icons = {
+    note:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg>`,
+    writer:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`,
+    todo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+    sticky:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/></svg>`,
+    image:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+    embed:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+  };
+
+  if (node.type === 'heading') {
+    return `${dots}
+      <div class="node-header" style="border:none;padding:4px 10px">
+        <div class="node-actions"><button class="node-action-btn danger" data-action="delete">✕</button></div>
+      </div>
+      <input class="heading-text" placeholder="Heading..." value="${esc(node.title||'')}" data-field="title" spellcheck="false">
+      ${resize}`;
+  }
+
+  const header = `
+    <div class="node-header">
+      <div class="node-icon">${icons[node.type]||icons.note}</div>
+      <input class="node-title-input" value="${esc(node.title||'')}" data-field="title" spellcheck="false" placeholder="${node.type}">
+      <div class="node-actions">
+        <button class="node-action-btn" data-action="pin" title="Pin">📌</button>
+        <button class="node-action-btn danger" data-action="delete" title="Delete">✕</button>
+      </div>
+    </div>`;
+
+  let body = '';
+
+  if (node.type === 'note') {
+    body = `
+      <div class="text-toolbar">
+        <button class="fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+        <button class="fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+        <button class="fmt-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+        <button class="fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+        <span class="fmt-sep"></span>
+        <button class="fmt-btn" data-cmd="insertUnorderedList" title="Bullet list">≡</button>
+        <button class="fmt-btn" data-cmd="insertOrderedList" title="Numbered list">№</button>
+      </div>
+      <div class="node-body">
+        <div class="note-editor" contenteditable="true" data-field="content" spellcheck="false" style="user-select:text">${node.content||'<br>'}</div>
+      </div>`;
+  } else if (node.type === 'writer') {
+    const wc = (node.content || '').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim().split(/\s+/).filter(w=>w.length>0).length;
+    body = `
+      <div class="node-body" style="padding:0">
+        <div class="writer-editor" contenteditable="true" data-field="content" spellcheck="false" style="user-select:text;padding:12px 14px 8px">${node.content||'<br>'}</div>
+        <div class="writer-wordcount" id="wc-${node.id}">${wc} words</div>
+      </div>`;
+  } else if (node.type === 'todo') {
+    const items = node.todos || [];
+    const done = items.filter(t=>t.done).length;
+    const pct = items.length ? Math.round(done/items.length*100) : 0;
+    body = `
+      <div class="node-body">
+        <div class="todo-progress"><div class="todo-progress-fill" style="width:${pct}%"></div></div>
+        <div class="todo-stats">${done}/${items.length} done</div>
+        <div class="todo-list">
+          ${items.map((t,i)=>`
+            <div class="todo-item">
+              <input type="checkbox" class="todo-checkbox" ${t.done?'checked':''} data-idx="${i}">
+              <textarea class="todo-text ${t.done?'done':''}" data-idx="${i}" rows="1" spellcheck="false" style="user-select:text">${esc(t.text||'')}</textarea>
+              <button class="todo-delete" data-idx="${i}">✕</button>
+            </div>`).join('')}
+        </div>
+        <button class="todo-add-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Add item
+        </button>
+      </div>`;
+  } else if (node.type === 'sticky') {
+    body = `
+      <div class="sticky-strip"></div>
+      <div class="node-body" style="padding:0">
+        <textarea class="sticky-body" placeholder="Write anything..." data-field="content" spellcheck="false" style="user-select:text">${node.content||''}</textarea>
+      </div>`;
+  } else if (node.type === 'image') {
+    body = `
+      <div class="node-body" ${node.imageData ? 'style="padding:0"' : ''}>
+        ${node.imageData
+          ? `<img src="${node.imageData}" alt="${esc(node.title)}"><input class="image-caption" placeholder="Add caption..." value="${esc(node.caption||'')}" data-field="caption" style="user-select:text">`
+          : `<div class="image-drop-zone" id="drop-${node.id}">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span style="font-weight:500">Click to upload image</span>
+              <span style="font-size:0.62rem;opacity:0.5">or paste from clipboard</span>
+            </div>`}
+      </div>`;
+  } else if (node.type === 'embed') {
+    const finalUrl = getEmbedUrl(node.embedUrl);
+    body = `
+      <div class="embed-input-area">
+        <input class="embed-url-input" placeholder="Paste YouTube, Spotify, or any URL..." value="${esc(node.embedUrl||'')}" data-field="embedUrl" style="user-select:text">
+        <button class="embed-go-btn" data-action="embed-go">Go</button>
+      </div>
+      ${finalUrl ? `<iframe src="${finalUrl}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation" allowfullscreen></iframe>` : ''}`;
+  }
+
+  return `${dots}${header}${body}${resize}`;
+}
+
+function renderNode(node) {
+  let el = document.getElementById(node.id);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = node.id;
+    el.className = `node node-${node.type}`;
+    canvasSurface.appendChild(el);
+  }
+  el.style.left = node.x + 'px';
+  el.style.top = node.y + 'px';
+  el.style.width = node.w + 'px';
+  if (node.color) { el.style.background = node.color; el.style.setProperty('--sticky-txt', node.color === '#1a1a1a' || node.color === '#0e1a0e' ? '#f0ede8' : ''); }
+  else el.style.background = '';
+  el.classList.toggle('pinned', !!node.pinned);
+  el.innerHTML = buildNodeHTML(node);
+  attachNodeEvents(el, node);
+}
+
+function attachNodeEvents(el, node) {
+  const header = el.querySelector('.node-header');
+  if (header) {
+    header.addEventListener('mousedown', e => {
+      if (e.target.tagName==='BUTTON'||e.target.tagName==='INPUT') return;
+      e.preventDefault(); e.stopPropagation(); startDrag(e, node);
+    });
+    header.addEventListener('touchstart', e => {
+      if (e.target.tagName==='BUTTON'||e.target.tagName==='INPUT') return;
+      e.stopPropagation(); startTouchDrag(e.touches[0], node);
+    }, { passive:true });
+  }
+
+  if (node.type === 'heading') {
+    el.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('heading-text')) return;
+      e.preventDefault(); startDrag(e, node);
+    });
+    el.addEventListener('touchstart', e => {
+      if (e.target.classList.contains('heading-text')) return;
+      e.stopPropagation(); startTouchDrag(e.touches[0], node);
+    }, { passive:true });
+  }
+
+  el.addEventListener('mousedown', e => {
+    if (e.button===2) return;
+    if (e.target.closest('.node-action-btn')||e.target.closest('.connect-dot')||e.target.closest('.resize-handle')) return;
+    if (!e.shiftKey) { if (!state.selectedNodes.has(node.id)) { clearSelection(); selectNode(node.id); } }
+    else { state.selectedNodes.has(node.id) ? deselectNode(node.id) : selectNode(node.id); }
+  });
+
+  el.querySelectorAll('.connect-dot').forEach(dot => {
+    dot.addEventListener('mousedown', e => { e.stopPropagation(); e.preventDefault(); state.connecting = { fromId:node.id, fromDir:dot.dataset.dir }; });
+  });
+
+  const rh = el.querySelector('.resize-handle');
+  if (rh) {
+    rh.addEventListener('mousedown', e => { e.stopPropagation(); e.preventDefault(); state.resizing = { nodeId:node.id, startX:e.clientX, startW:node.w }; });
+    rh.addEventListener('touchstart', e => { e.stopPropagation(); state.resizing = { nodeId:node.id, startX:e.touches[0].clientX, startW:node.w }; }, { passive:true });
+  }
+
+  el.querySelectorAll('.node-action-btn').forEach(btn => {
+    btn.addEventListener('mousedown', e => e.stopPropagation());
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (btn.dataset.action==='delete') deleteNode(node.id);
+      if (btn.dataset.action==='pin') { node.pinned=!node.pinned; renderNode(node); showToast(node.pinned?'📌 Pinned':'Unpinned'); }
+    });
+  });
+
+  // Note
+  if (node.type === 'note') {
+    const ed = el.querySelector('.note-editor');
+    if (ed) {
+      ed.addEventListener('input', () => { node.content=ed.innerHTML; autoSave(); });
+      ed.addEventListener('mousedown', e => e.stopPropagation());
+      el.querySelectorAll('.fmt-btn').forEach(btn => {
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        btn.addEventListener('click', e => { e.stopPropagation(); document.execCommand(btn.dataset.cmd,false,null); node.content=ed.innerHTML; autoSave(); });
+      });
+    }
+  }
+
+  // Writer
+  if (node.type === 'writer') {
+    const ed = el.querySelector('.writer-editor');
+    const wcEl = el.querySelector(`#wc-${node.id}`);
+    if (ed) {
+      ed.addEventListener('input', () => {
+        node.content = ed.innerHTML;
+        if (wcEl) {
+          const words = ed.innerText.trim().split(/\s+/).filter(w=>w.length>0).length;
+          wcEl.textContent = words + ' word' + (words!==1?'s':'');
+        }
+        autoSave();
+      });
+      ed.addEventListener('mousedown', e => e.stopPropagation());
+    }
+  }
+
+  // Todo
+  if (node.type === 'todo') {
+    if (!node.todos) node.todos = [];
+    const list = el.querySelector('.todo-list');
+    const addBtn = el.querySelector('.todo-add-btn');
+    if (addBtn) addBtn.addEventListener('click', e => { e.stopPropagation(); addTodoItem(node); });
+    if (list) {
+      list.addEventListener('mousedown', e => e.stopPropagation());
+      list.addEventListener('change', e => {
+        if (e.target.classList.contains('todo-checkbox')) { node.todos[+e.target.dataset.idx].done=e.target.checked; renderNode(node); autoSave(); }
+      });
+      list.addEventListener('input', e => {
+        if (e.target.classList.contains('todo-text')) { node.todos[+e.target.dataset.idx].text=e.target.value; autoTextarea(e.target); autoSave(); }
+      });
+      list.addEventListener('click', e => {
+        if (e.target.classList.contains('todo-delete')) { node.todos.splice(+e.target.dataset.idx,1); renderNode(node); autoSave(); }
+      });
+      list.addEventListener('keydown', e => {
+        if (e.key==='Enter'&&e.target.classList.contains('todo-text')) { e.preventDefault(); addTodoItem(node); }
+      });
+    }
+  }
+
+  // Sticky
+  if (node.type === 'sticky') {
+    const sb = el.querySelector('.sticky-body');
+    if (sb) { sb.addEventListener('input', () => { node.content=sb.value; autoSave(); }); sb.addEventListener('mousedown', e=>e.stopPropagation()); }
+  }
+
+  // Image
+  if (node.type === 'image') {
+    const dz = el.querySelector('.image-drop-zone');
+    if (dz) {
+      dz.addEventListener('click', e => { e.stopPropagation(); const fi=document.getElementById('image-file-input'); fi._targetNode=node.id; fi.click(); });
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='var(--accent)'; });
+      dz.addEventListener('dragleave', () => { dz.style.borderColor=''; });
+      dz.addEventListener('drop', e => { e.preventDefault(); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/')) loadImageFile(f,node); });
+    }
+    const cap = el.querySelector('.image-caption');
+    if (cap) { cap.addEventListener('input', () => { node.caption=cap.value; autoSave(); }); cap.addEventListener('mousedown', e=>e.stopPropagation()); }
+  }
+
+  // Embed
+  if (node.type === 'embed') {
+    const goBtn = el.querySelector('.embed-go-btn');
+    const urlIn = el.querySelector('.embed-url-input');
+    if (goBtn&&urlIn) {
+      goBtn.addEventListener('click', e => { e.stopPropagation(); node.embedUrl=urlIn.value.trim(); renderNode(node); autoSave(); });
+      urlIn.addEventListener('mousedown', e=>e.stopPropagation());
+      urlIn.addEventListener('keydown', e => { if(e.key==='Enter') { node.embedUrl=urlIn.value.trim(); renderNode(node); autoSave(); } });
+    }
+  }
+
+  // Heading
+  if (node.type === 'heading') {
+    const ht = el.querySelector('.heading-text');
+    if (ht) { ht.addEventListener('input', () => { node.title=ht.value; autoSave(); }); ht.addEventListener('mousedown', e=>e.stopPropagation()); }
+  }
+
+  // Title input
+  if (node.type !== 'heading') {
+    const ti = el.querySelector('.node-title-input');
+    if (ti) { ti.addEventListener('input', () => { node.title=ti.value; autoSave(); }); ti.addEventListener('mousedown', e=>e.stopPropagation()); }
+  }
+
+  el.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); state.contextNode=node.id; showNodeContextMenu(e.clientX, e.clientY); });
+}
+
+function addTodoItem(node) {
+  if (!node.todos) node.todos = [];
+  node.todos.push({ text:'', done:false });
+  renderNode(node); autoSave();
+  setTimeout(() => {
+    const el = document.getElementById(node.id);
+    const tas = el.querySelectorAll('.todo-text');
+    const last = tas[tas.length-1];
+    if (last) { last.focus(); autoTextarea(last); }
+  }, 30);
+}
+
+function loadImageFile(file, node) {
+  const reader = new FileReader();
+  reader.onload = e => { node.imageData=e.target.result; renderNode(node); autoSave(); };
+  reader.readAsDataURL(file);
+}
+
+function startDrag(e, node) {
+  if (node.pinned) return;
+  state.dragging = { nodeId:node.id, startX:e.clientX, startY:e.clientY, origX:node.x, origY:node.y };
+  selectNode(node.id);
+}
+
+function startTouchDrag(t, node) {
+  if (node.pinned) return;
+  state.touchDragNode = node.id;
+  state.touchDragStart = { x:t.clientX, y:t.clientY, origX:node.x, origY:node.y };
+  selectNode(node.id);
+}
+
+function selectNode(id) { state.selectedNodes.add(id); const el=document.getElementById(id); if(el) el.classList.add('selected'); }
+function deselectNode(id) { state.selectedNodes.delete(id); const el=document.getElementById(id); if(el) el.classList.remove('selected'); }
+function clearSelection() { state.selectedNodes.forEach(id => { const el=document.getElementById(id); if(el) el.classList.remove('selected'); }); state.selectedNodes.clear(); }
+
+function deleteNode(id) {
+  saveUndo();
+  state.nodes = state.nodes.filter(n=>n.id!==id);
+  state.connections = state.connections.filter(c=>c.fromId!==id&&c.toId!==id);
+  const el = document.getElementById(id); if(el) el.remove();
+  state.selectedNodes.delete(id);
+  renderConnections(); updateStatus(); autoSave();
+}
+
+function deleteSelected() {
+  if (!state.selectedNodes.size) return;
+  saveUndo();
+  state.selectedNodes.forEach(id => {
+    state.nodes = state.nodes.filter(n=>n.id!==id);
+    state.connections = state.connections.filter(c=>c.fromId!==id&&c.toId!==id);
+    const el=document.getElementById(id); if(el) el.remove();
+  });
+  state.selectedNodes.clear();
+  renderConnections(); updateStatus(); autoSave();
+}
+
+// ===== CONNECTIONS — Glowing wires =====
+function renderConnections() {
+  const r = wrapper.getBoundingClientRect();
+  ctx.clearRect(0, 0, connCanvas.width, connCanvas.height);
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const lineColor = isDark ? 'rgba(124,106,240,0.5)' : 'rgba(91,71,214,0.45)';
+  const lineColorSel = isDark ? 'rgba(154,136,255,0.95)' : 'rgba(91,71,214,0.95)';
+  const glowColor = isDark ? 'rgba(124,106,240,0.3)' : 'rgba(91,71,214,0.2)';
+
+  state.connections.forEach(conn => {
+    try {
+      const fn = state.nodes.find(n=>n.id===conn.fromId);
+      const tn = state.nodes.find(n=>n.id===conn.toId);
+      if (!fn||!tn) return;
+      const fp = getDotPos(fn, conn.fromDir);
+      const tp = getDotPos(tn, conn.toDir);
+      if (!fp||!tp) return;
+      const dx = tp.x-fp.x, dy = tp.y-fp.y;
+      const sx = fp.x-r.left, sy = fp.y-r.top;
+      const ex = tp.x-r.left, ey = tp.y-r.top;
+      const cx1 = sx+dx*.5, cy1 = sy;
+      const cx2 = ex-dx*.5, cy2 = ey;
+      // Glow layer
+      ctx.beginPath();
+      ctx.strokeStyle = conn.selected ? lineColorSel : glowColor;
+      ctx.lineWidth = conn.selected ? 6 : 5;
+      ctx.setLineDash([]);
+      ctx.moveTo(sx, sy);
+      ctx.bezierCurveTo(cx1,cy1,cx2,cy2,ex,ey);
+      ctx.stroke();
+      // Main line
+      ctx.beginPath();
+      ctx.strokeStyle = conn.selected ? lineColorSel : lineColor;
+      ctx.lineWidth = conn.selected ? 2 : 1.5;
+      ctx.moveTo(sx,sy);
+      ctx.bezierCurveTo(cx1,cy1,cx2,cy2,ex,ey);
+      ctx.stroke();
+      drawArrow(ctx,{x:cx2,y:cy2},{x:ex,y:ey},conn.selected,lineColor,lineColorSel);
+    } catch(e) {}
+  });
+
+  if (state.connecting && state.connecting.mouseX !== undefined) {
+    const fn = state.nodes.find(n=>n.id===state.connecting.fromId);
+    if (fn) {
+      const fp = getDotPos(fn, state.connecting.fromDir);
+      if (fp) {
+        ctx.beginPath();
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5,5]);
+        ctx.moveTo(fp.x-r.left, fp.y-r.top);
+        ctx.lineTo(state.connecting.mouseX, state.connecting.mouseY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }
+}
+
+function getDotPos(node, dir) {
+  const el = document.getElementById(node.id);
+  if (!el) return null;
+  const er = el.getBoundingClientRect();
+  const pos = {
+    top:{x:er.left+er.width/2, y:er.top},
+    bottom:{x:er.left+er.width/2, y:er.bottom},
+    left:{x:er.left, y:er.top+er.height/2},
+    right:{x:er.right, y:er.top+er.height/2}
+  };
+  return pos[dir] || {x:er.left+er.width/2, y:er.top+er.height/2};
+}
+
+function drawArrow(ctx, from, to, selected, color, selColor) {
+  const ang = Math.atan2(to.y-from.y, to.x-from.x), len = 9;
+  ctx.beginPath();
+  ctx.strokeStyle = selected ? selColor : color;
+  ctx.lineWidth = selected ? 2 : 1.5;
+  ctx.moveTo(to.x-len*Math.cos(ang-0.4), to.y-len*Math.sin(ang-0.4));
+  ctx.lineTo(to.x, to.y);
+  ctx.lineTo(to.x-len*Math.cos(ang+0.4), to.y-len*Math.sin(ang+0.4));
+  ctx.stroke();
+}
+
+function getNodeUnderMouse(cx, cy) {
+  const cp = screenToCanvas(cx, cy);
+  for (let i = state.nodes.length-1; i >= 0; i--) {
+    const n = state.nodes[i];
+    const el = document.getElementById(n.id);
+    if (!el) continue;
+    if (cp.x>=n.x&&cp.x<=n.x+el.offsetWidth&&cp.y>=n.y&&cp.y<=n.y+el.offsetHeight) return n;
+  }
+  return null;
+}
+
+function setZoom(z, cx, cy) {
+  z = Math.max(0.1, Math.min(4, z));
+  const r = wrapper.getBoundingClientRect();
+  const px = (cx!==undefined ? cx : r.width/2) - r.left;
+  const py = (cy!==undefined ? cy : r.height/2) - r.top;
+  state.panX = px - (px-state.panX) * (z/state.zoom);
+  state.panY = py - (py-state.panY) * (z/state.zoom);
+  state.zoom = z; updateTransform();
+}
+
+// ===== MOUSE EVENTS =====
+function setupEvents() {
+  wrapper.addEventListener('wheel', e => {
+    e.preventDefault();
+    if (e.ctrlKey||e.metaKey) setZoom(state.zoom*(e.deltaY>0?0.9:1.1), e.clientX, e.clientY);
+    else { state.panX-=e.deltaX; state.panY-=e.deltaY; updateTransform(); }
+  }, { passive:false });
+
+  wrapper.addEventListener('mousedown', e => {
+    if (e.button===2) return;
+    if (e.target.classList.contains('connect-dot')) return;
+    if (state.tool==='pan'||e.button===1||state.isSpaceDown) {
+      e.preventDefault(); state.isPanning=true;
+      state.panStart={x:e.clientX-state.panX, y:e.clientY-state.panY};
+      document.body.classList.add('panning'); return;
+    }
+    if (e.target===canvasSurface||e.target===viewport||e.target===wrapper||e.target.id==='canvas-surface') {
+      clearSelection();
+      if (state.tool==='select') {
+        const cp = screenToCanvas(e.clientX, e.clientY);
+        state.selectionBox={startX:cp.x,startY:cp.y,x:cp.x,y:cp.y,w:0,h:0};
+        const sb=document.createElement('div'); sb.className='selection-box'; sb.id='sel-box'; canvasSurface.appendChild(sb);
+      }
+    }
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (state.isPanning) { state.panX=e.clientX-state.panStart.x; state.panY=e.clientY-state.panStart.y; updateTransform(); return; }
+    if (state.dragging) {
+      const node = state.nodes.find(n=>n.id===state.dragging.nodeId);
+      if (node&&!node.pinned) {
+        node.x=state.dragging.origX+(e.clientX-state.dragging.startX)/state.zoom;
+        node.y=state.dragging.origY+(e.clientY-state.dragging.startY)/state.zoom;
+        const el=document.getElementById(node.id);
+        if (el) { el.style.left=node.x+'px'; el.style.top=node.y+'px'; }
+        renderConnections();
+      } return;
+    }
+    if (state.resizing) {
+      const node=state.nodes.find(n=>n.id===state.resizing.nodeId);
+      if (node) { node.w=Math.max(180,state.resizing.startW+(e.clientX-state.resizing.startX)/state.zoom); const el=document.getElementById(node.id); if(el) el.style.width=node.w+'px'; renderConnections(); } return;
+    }
+    if (state.connecting) {
+      const r=wrapper.getBoundingClientRect();
+      state.connecting.mouseX=e.clientX-r.left; state.connecting.mouseY=e.clientY-r.top;
+      renderConnections(); return;
+    }
+    if (state.selectionBox) {
+      const cp=screenToCanvas(e.clientX,e.clientY), sb=state.selectionBox;
+      sb.x=Math.min(cp.x,sb.startX); sb.y=Math.min(cp.y,sb.startY);
+      sb.w=Math.abs(cp.x-sb.startX); sb.h=Math.abs(cp.y-sb.startY);
+      const el=document.getElementById('sel-box');
+      if (el) { el.style.left=sb.x+'px'; el.style.top=sb.y+'px'; el.style.width=sb.w+'px'; el.style.height=sb.h+'px'; }
+      clearSelection();
+      state.nodes.forEach(n => {
+        const nel=document.getElementById(n.id); if(!nel) return;
+        if (n.x+nel.offsetWidth>=sb.x&&n.x<=sb.x+sb.w&&n.y+nel.offsetHeight>=sb.y&&n.y<=sb.y+sb.h) selectNode(n.id);
+      });
+    }
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (state.isPanning) { state.isPanning=false; document.body.classList.remove('panning'); }
+    if (state.dragging) { autoSave(); state.dragging=null; }
+    if (state.resizing) { autoSave(); state.resizing=null; }
+    if (state.connecting) {
+      const target=getNodeUnderMouse(e.clientX,e.clientY);
+      if (target&&target.id!==state.connecting.fromId) {
+        let toDir='top';
+        if (e.target&&e.target.classList&&e.target.classList.contains('connect-dot')) {
+          toDir=e.target.dataset.dir;
+        } else {
+          const nel=document.getElementById(target.id);
+          if (nel) {
+            const rect=nel.getBoundingClientRect();
+            const ds=[
+              {dir:'top',d:Math.hypot(e.clientX-(rect.left+rect.width/2),e.clientY-rect.top)},
+              {dir:'bottom',d:Math.hypot(e.clientX-(rect.left+rect.width/2),e.clientY-rect.bottom)},
+              {dir:'left',d:Math.hypot(e.clientX-rect.left,e.clientY-(rect.top+rect.height/2))},
+              {dir:'right',d:Math.hypot(e.clientX-rect.right,e.clientY-(rect.top+rect.height/2))}
+            ];
+            ds.sort((a,b)=>a.d-b.d); toDir=ds[0].dir;
+          }
+        }
+        state.connections.push({id:'conn_'+(++state.connCounter),fromId:state.connecting.fromId,fromDir:state.connecting.fromDir,toId:target.id,toDir});
+        updateStatus(); autoSave(); showToast('Nodes connected ✓');
+        setTool('select');
+      }
+      state.connecting=null; renderConnections();
+    }
+    if (state.selectionBox) { const el=document.getElementById('sel-box'); if(el) el.remove(); state.selectionBox=null; }
+  });
+
+  wrapper.addEventListener('contextmenu', e => {
+    e.preventDefault(); state.rightClickPos=screenToCanvas(e.clientX,e.clientY);
+    showContextMenu(e.clientX,e.clientY);
+  });
+
+  document.getElementById('image-file-input').addEventListener('change', e => {
+    const file=e.target.files[0], nodeId=e.target._targetNode;
+    if (file&&nodeId) { const node=state.nodes.find(n=>n.id===nodeId); if(node) loadImageFile(file,node); }
+    e.target.value='';
+  });
+
+  document.addEventListener('paste', e => {
+    const cd=e.clipboardData||window.clipboardData; if(!cd) return;
+    for (let i=0;i<cd.items.length;i++) {
+      if (cd.items[i].type.startsWith('image/')) {
+        e.preventDefault(); const file=cd.items[i].getAsFile();
+        let target=null;
+        if (state.selectedNodes.size===1) { const n=state.nodes.find(n=>n.id==[...state.selectedNodes][0]); if(n&&n.type==='image') target=n; }
+        if (!target) { const r=wrapper.getBoundingClientRect(); const cp=screenToCanvas(r.left+r.width/2,r.top+r.height/2); target=createNode('image',cp.x,cp.y,{title:'Pasted Image'}); }
+        loadImageFile(file,target); return;
+      }
+    }
+    const text=cd.getData('text');
+    if (text&&document.activeElement===document.body) {
+      const r=wrapper.getBoundingClientRect(); const cp=screenToCanvas(r.left+r.width/2,r.top+r.height/2);
+      createNode('note',cp.x,cp.y,{title:'Pasted',content:esc(text).replace(/\n/g,'<br>')});
+    }
+  });
+}
+
+// ===== TOUCH =====
+function setupTouch() {
+  let lastTouchEnd=0;
+  wrapper.addEventListener('touchstart', e => {
+    if (e.touches.length===2) {
+      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+      state.pinchStartDist=d; state.pinchStartZoom=state.zoom; state.touchStart=null;
+    } else if (e.touches.length===1) {
+      const t=e.touches[0], target=getNodeUnderMouse(t.clientX,t.clientY);
+      if (!target&&state.tool!=='draw') state.touchStart={x:t.clientX-state.panX,y:t.clientY-state.panY};
+    }
+  }, { passive:true });
+
+  wrapper.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length===2&&state.pinchStartDist) {
+      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+      const cx=(e.touches[0].clientX+e.touches[1].clientX)/2, cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
+      setZoom(state.pinchStartZoom*(d/state.pinchStartDist),cx,cy);
+    } else if (e.touches.length===1) {
+      const t=e.touches[0];
+      if (state.touchDragNode) {
+        const node=state.nodes.find(n=>n.id===state.touchDragNode);
+        if (node&&state.touchDragStart) {
+          node.x=state.touchDragStart.origX+(t.clientX-state.touchDragStart.x)/state.zoom;
+          node.y=state.touchDragStart.origY+(t.clientY-state.touchDragStart.y)/state.zoom;
+          const el=document.getElementById(node.id);
+          if (el) { el.style.left=node.x+'px'; el.style.top=node.y+'px'; } renderConnections();
+        }
+      } else if (state.resizing) {
+        const node=state.nodes.find(n=>n.id===state.resizing.nodeId);
+        if (node) { node.w=Math.max(180,state.resizing.startW+(t.clientX-state.resizing.startX)/state.zoom); const el=document.getElementById(node.id); if(el) el.style.width=node.w+'px'; renderConnections(); }
+      } else if (state.touchStart) {
+        state.panX=t.clientX-state.touchStart.x; state.panY=t.clientY-state.touchStart.y; updateTransform();
+      }
+    }
+  }, { passive:false });
+
+  wrapper.addEventListener('touchend', e => {
+    if (state.touchDragNode) { autoSave(); state.touchDragNode=null; state.touchDragStart=null; }
+    if (state.resizing) { autoSave(); state.resizing=null; }
+    state.pinchStartDist=null; state.touchStart=null;
+    const now=Date.now();
+    if (now-lastTouchEnd<300&&e.changedTouches.length===1) {
+      const t=e.changedTouches[0], target=getNodeUnderMouse(t.clientX,t.clientY);
+      if (!target) { const cp=screenToCanvas(t.clientX,t.clientY); createNode('note',cp.x,cp.y); }
+    }
+    lastTouchEnd=now;
+  }, { passive:true });
+}
+
+// ===== TOPBAR =====
+function setupTopbar() {
+  document.getElementById('btn-zoom-in').addEventListener('click', () => setZoom(state.zoom*1.2));
+  document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(state.zoom/1.2));
+  document.getElementById('btn-fit').addEventListener('click', fitAll);
+  document.getElementById('btn-home').addEventListener('click', () => { window.location.href='index.html'; });
+  document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+  document.getElementById('btn-present').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); resizeCanvases(); renderConnections(); });
+  document.getElementById('btn-hamburger').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('hamburger-menu').classList.toggle('visible');
+  });
+  document.getElementById('hamburger-menu').querySelectorAll('.hmenu-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const action=item.dataset.action;
+      document.getElementById('hamburger-menu').classList.remove('visible');
+      if (action==='new') newCanvas();
+      else if (action==='save') saveToFile();
+      else if (action==='load') document.getElementById('file-input').click();
+      else if (action==='undo') undo();
+      else if (action==='redo') redo();
+      else if (action==='select-all') state.nodes.forEach(n=>selectNode(n.id));
+      else if (action==='clear-conn') { state.connections=[]; renderConnections(); updateStatus(); autoSave(); showToast('Connections cleared'); }
+      else if (action==='zoom-reset') { state.zoom=1; state.panX=0; state.panY=0; updateTransform(); }
+      else if (action==='clear-all') { if(confirm('Clear all nodes?')) newCanvas(); }
+    });
+  });
+  document.getElementById('file-input').addEventListener('change', e => {
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev => { try { loadData(JSON.parse(ev.target.result)); showToast('✓ Loaded'); } catch { showToast('Invalid file'); } };
+    reader.readAsText(file); e.target.value='';
+  });
+}
+
+function setupSidebar() {
+  document.querySelectorAll('.s-btn[data-tool]').forEach(btn => btn.addEventListener('click', () => setTool(btn.dataset.tool)));
+  document.querySelectorAll('.s-btn.node-add[data-node]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const r=wrapper.getBoundingClientRect(), cp=screenToCanvas(r.left+r.width/2,r.top+r.height/2);
+      createNode(btn.dataset.node, cp.x+Math.random()*40-20, cp.y+Math.random()*40-20);
+    });
+  });
+  document.getElementById('btn-undo').addEventListener('click', undo);
+  document.getElementById('btn-redo').addEventListener('click', redo);
+}
+
+function setTool(tool) {
+  state.tool=tool;
+  document.querySelectorAll('.s-btn[data-tool]').forEach(b=>b.classList.remove('active'));
+  const btn=document.querySelector(`.s-btn[data-tool="${tool}"]`); if(btn) btn.classList.add('active');
+  document.getElementById('status-tool').textContent=tool.charAt(0).toUpperCase()+tool.slice(1);
+  const dc=document.getElementById('draw-canvas'), dt=document.getElementById('draw-toolbar');
+  if (tool==='draw') { dc.classList.add('active'); if(dt) dt.classList.add('visible'); }
+  else { dc.classList.remove('active'); if(dt) dt.classList.remove('visible'); }
+}
+
+function setupContextMenus() {
+  document.getElementById('context-menu').querySelectorAll('.ctx-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const action=item.dataset.action, pos=state.rightClickPos;
+      if (action.startsWith('add-')) createNode(action.replace('add-',''),pos.x,pos.y);
+      else if (action==='select-all') state.nodes.forEach(n=>selectNode(n.id));
+      else if (action==='clear-all') { if(confirm('Clear all?')) newCanvas(); }
+      hideContextMenus();
+    });
+  });
+
+  document.getElementById('node-context-menu').querySelectorAll('.ctx-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const action=item.dataset.action, node=state.nodes.find(n=>n.id===state.contextNode);
+      if (!node) { hideContextMenus(); return; }
+      if (action==='delete-node') deleteNode(node.id);
+      else if (action==='pin-node') { node.pinned=!node.pinned; renderNode(node); showToast(node.pinned?'📌 Pinned':'Unpinned'); }
+      else if (action==='color-node') showColorPicker(node);
+      else if (action==='duplicate-node') { const c=JSON.parse(JSON.stringify(node)); c.id='node_'+(++state.nodeCounter); c.x+=30; c.y+=30; state.nodes.push(c); renderNode(c); updateStatus(); autoSave(); }
+      else if (action==='copy-node') { state.clipboard=JSON.parse(JSON.stringify(node)); showToast('Copied'); }
+      hideContextMenus();
+    });
+  });
+
+  document.addEventListener('click', hideContextMenus);
+  document.addEventListener('keydown', e => { if(e.key==='Escape') { hideContextMenus(); clearSelection(); } });
+}
+
+function showContextMenu(x,y) { hideContextMenus(); const cm=document.getElementById('context-menu'); cm.style.left=x+'px'; cm.style.top=y+'px'; cm.classList.add('visible'); }
+function showNodeContextMenu(x,y) { hideContextMenus(); const cm=document.getElementById('node-context-menu'); cm.style.left=x+'px'; cm.style.top=y+'px'; cm.classList.add('visible'); }
+function hideContextMenus() { document.querySelectorAll('.context-menu').forEach(m=>m.classList.remove('visible')); const cp=document.getElementById('color-picker-popup'); if(cp) cp.classList.remove('visible'); document.getElementById('hamburger-menu').classList.remove('visible'); }
+
+function showColorPicker(node) {
+  const cp=document.getElementById('color-picker-popup');
+  const el=document.getElementById(node.id);
+  const r=el?el.getBoundingClientRect():{left:100,bottom:100};
+  cp.style.left=r.left+'px'; cp.style.top=(r.bottom+6)+'px'; cp.classList.add('visible');
+  cp.querySelectorAll('.swatch').forEach(s => { s.onclick=()=>{ node.color=s.dataset.color||''; renderNode(node); cp.classList.remove('visible'); autoSave(); }; });
+}
+
+// ===== KEYBOARD =====
+function setupKeyboard() {
+  document.addEventListener('keydown', e => {
+    const active=document.activeElement;
+    const isEditing=active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA'||active.getAttribute('contenteditable')==='true');
+    if (e.key===' '&&!isEditing) { e.preventDefault(); state.isSpaceDown=true; wrapper.style.cursor='grab'; }
+    if (isEditing) return;
+    if (e.ctrlKey||e.metaKey) {
+      switch(e.key.toLowerCase()) {
+        case 's': e.preventDefault(); saveToFile(); break;
+        case 'o': e.preventDefault(); document.getElementById('file-input').click(); break;
+        case 'n': e.preventDefault(); newCanvas(); break;
+        case 'z': e.preventDefault(); e.shiftKey?redo():undo(); break;
+        case 'y': e.preventDefault(); redo(); break;
+        case 'a': e.preventDefault(); state.nodes.forEach(n=>selectNode(n.id)); break;
+        case 'c': e.preventDefault(); if(state.selectedNodes.size===1){const id=[...state.selectedNodes][0]; state.clipboard=JSON.parse(JSON.stringify(state.nodes.find(n=>n.id===id))); showToast('Copied');} break;
+        case 'v': e.preventDefault(); if(state.clipboard){const c=JSON.parse(JSON.stringify(state.clipboard)); c.id='node_'+(++state.nodeCounter); c.x+=40; c.y+=40; state.nodes.push(c); renderNode(c); updateStatus(); autoSave();} break;
+      }
+      return;
+    }
+    const r=wrapper.getBoundingClientRect();
+    const cp=()=>screenToCanvas(r.left+r.width/2,r.top+r.height/2);
+    switch(e.key) {
+      case 'Delete': case 'Backspace': deleteSelected(); break;
+      case 'v': case 'V': setTool('select'); break;
+      case 'h': case 'H': setTool('pan'); break;
+      case 'c': case 'C': setTool('connect'); break;
+      case 'd': case 'D': setTool('draw'); break;
+      case 'n': case 'N': { const p=cp(); createNode('note',p.x,p.y); break; }
+      case 'w': case 'W': { const p=cp(); createNode('writer',p.x,p.y); break; }
+      case 't': case 'T': { const p=cp(); createNode('todo',p.x,p.y); break; }
+      case 's': case 'S': { const p=cp(); createNode('sticky',p.x,p.y); break; }
+      case 'i': case 'I': { const p=cp(); createNode('image',p.x,p.y); break; }
+      case 'e': case 'E': { const p=cp(); createNode('embed',p.x,p.y); break; }
+      case '0': state.zoom=1; state.panX=0; state.panY=0; updateTransform(); break;
+      case '+': case '=': setZoom(state.zoom*1.2); break;
+      case '-': setZoom(state.zoom/1.2); break;
+      case 'f': case 'F': fitAll(); break;
+    }
+  });
+  document.addEventListener('keyup', e => { if(e.key===' ') { state.isSpaceDown=false; wrapper.style.cursor=''; } });
+}
+
+// ===== DRAWING =====
+function setupDrawing() {
+  const dc=drawCanvas;
+  let drawing=false, lastX, lastY, drawColor='#5b47d6', drawSize=3, isEraser=false;
+
+  const dt=document.createElement('div');
+  dt.id='draw-toolbar';
+  dt.innerHTML=`
+    <span class="draw-lbl">Draw</span>
+    ${['#5b47d6','#e03535','#0d9488','#d97706','#0f0f0f'].map((c,i)=>
+      `<div class="draw-color${i===0?' active':''}" data-color="${c}" style="background:${c}${i===0?';border-color:var(--accent)':''}"></div>`
+    ).join('')}
+    <input class="draw-size" type="range" min="1" max="20" value="3">
+    <button class="draw-tool-btn" id="draw-eraser-btn">Eraser</button>
+    <button class="draw-clear-btn">Clear</button>`;
+  document.body.appendChild(dt);
+
+  dt.querySelectorAll('.draw-color').forEach(d => {
+    d.addEventListener('click', () => {
+      dt.querySelectorAll('.draw-color').forEach(x=>x.classList.remove('active'));
+      d.classList.add('active'); drawColor=d.dataset.color; isEraser=false;
+      document.getElementById('draw-eraser-btn').classList.remove('active');
+    });
+  });
+  dt.querySelector('.draw-size').addEventListener('input', e => { drawSize=+e.target.value; });
+  dt.querySelector('#draw-eraser-btn').addEventListener('click', function() { isEraser=!isEraser; this.classList.toggle('active',isEraser); });
+  dt.querySelector('.draw-clear-btn').addEventListener('click', () => { dctx.clearRect(0,0,dc.width,dc.height); });
+
+  function draw(x,y) {
+    dctx.beginPath();
+    dctx.globalCompositeOperation=isEraser?'destination-out':'source-over';
+    dctx.strokeStyle=drawColor; dctx.lineWidth=isEraser?drawSize*3:drawSize;
+    dctx.lineCap='round'; dctx.lineJoin='round';
+    dctx.moveTo(lastX,lastY); dctx.lineTo(x,y); dctx.stroke();
+    lastX=x; lastY=y;
+  }
+
+  dc.addEventListener('mousedown', e => { if(state.tool!=='draw') return; drawing=true; const r=dc.getBoundingClientRect(); lastX=e.clientX-r.left; lastY=e.clientY-r.top; });
+  dc.addEventListener('mousemove', e => { if(!drawing||state.tool!=='draw') return; const r=dc.getBoundingClientRect(); draw(e.clientX-r.left,e.clientY-r.top); });
+  document.addEventListener('mouseup', () => { drawing=false; });
+  dc.addEventListener('touchstart', e => { if(state.tool!=='draw') return; e.preventDefault(); const r=dc.getBoundingClientRect(),t=e.touches[0]; lastX=t.clientX-r.left; lastY=t.clientY-r.top; drawing=true; }, {passive:false});
+  dc.addEventListener('touchmove', e => { if(!drawing||state.tool!=='draw') return; e.preventDefault(); const r=dc.getBoundingClientRect(),t=e.touches[0]; draw(t.clientX-r.left,t.clientY-r.top); }, {passive:false});
+  dc.addEventListener('touchend', () => { drawing=false; });
+}
+
+// ===== FIT ALL =====
+function fitAll() {
+  if (!state.nodes.length) { state.zoom=1; state.panX=0; state.panY=0; updateTransform(); return; }
+  const r=wrapper.getBoundingClientRect();
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  state.nodes.forEach(n => { const el=document.getElementById(n.id); const w=el?el.offsetWidth:260,h=el?el.offsetHeight:150; minX=Math.min(minX,n.x); minY=Math.min(minY,n.y); maxX=Math.max(maxX,n.x+w); maxY=Math.max(maxY,n.y+h); });
+  const pad=80,bw=maxX-minX+pad*2,bh=maxY-minY+pad*2;
+  const zoom=Math.min(r.width/bw,r.height/bh,1.5);
+  state.zoom=zoom; state.panX=(r.width-bw*zoom)/2-(minX-pad)*zoom; state.panY=(r.height-bh*zoom)/2-(minY-pad)*zoom;
+  updateTransform();
+}
+
+// ===== UNDO / REDO =====
+function saveUndo() { const snap=JSON.stringify({nodes:state.nodes,connections:state.connections}); state.undoStack.push(snap); if(state.undoStack.length>50) state.undoStack.shift(); state.redoStack=[]; }
+function undo() { if(!state.undoStack.length){showToast('Nothing to undo');return;} state.redoStack.push(JSON.stringify({nodes:state.nodes,connections:state.connections})); loadStateData(JSON.parse(state.undoStack.pop())); showToast('Undo ↩'); }
+function redo() { if(!state.redoStack.length){showToast('Nothing to redo');return;} state.undoStack.push(JSON.stringify({nodes:state.nodes,connections:state.connections})); loadStateData(JSON.parse(state.redoStack.pop())); showToast('Redo ↪'); }
+function loadStateData(data) { state.nodes=data.nodes; state.connections=data.connections; canvasSurface.innerHTML=''; state.nodes.forEach(n=>renderNode(n)); renderConnections(); updateStatus(); }
+
+// ===== SAVE / LOAD =====
+function buildSaveData() {
+  return {version:2,title:document.getElementById('canvas-title').value,nodes:state.nodes,connections:state.connections,zoom:state.zoom,panX:state.panX,panY:state.panY};
+}
+function saveToFile() {
+  const data=buildSaveData();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(data.title||'flowly')+'.json'; a.click();
+  showToast('✓ Saved to file');
+}
+function newCanvas() {
+  if (state.nodes.length>0&&!confirm('Start a new canvas?')) return;
+  saveUndo(); state.nodes=[]; state.connections=[]; canvasSurface.innerHTML='';
+  state.zoom=1; state.panX=0; state.panY=0;
+  document.getElementById('canvas-title').value='Untitled Canvas';
+  renderConnections(); updateStatus(); localStorage.removeItem('flowly_autosave'); showToast('New canvas ✦');
+}
+function loadData(data) {
+  if (data.title) document.getElementById('canvas-title').value=data.title;
+  state.nodes=data.nodes||[]; state.connections=data.connections||[];
+  state.zoom=data.zoom||1; state.panX=data.panX||0; state.panY=data.panY||0;
+  state.nodeCounter=state.nodes.length+100; state.connCounter=state.connections.length+100;
+  canvasSurface.innerHTML=''; state.nodes.forEach(n=>renderNode(n)); updateTransform(); renderConnections(); updateStatus();
+}
+function autoSave() { try { localStorage.setItem('flowly_autosave',JSON.stringify(buildSaveData())); } catch(e) {} }
+function loadFromStorage() { try { const raw=localStorage.getItem('flowly_autosave'); if(raw) { loadData(JSON.parse(raw)); showToast('Restored from autosave'); } } catch(e) {} }
+
+function updateStatus() {
+  document.getElementById('status-nodes').textContent=state.nodes.length+' node'+(state.nodes.length!==1?'s':'');
+  document.getElementById('status-conn').textContent=state.connections.length+' connection'+(state.connections.length!==1?'s':'');
+}
+
+// ===== THEME =====
+function loadTheme() {
+  const saved=localStorage.getItem('flowly_theme');
+  const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark=saved?saved==='dark':prefersDark;
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  updateThemeIcon(dark);
+}
+function toggleTheme() {
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const next=isDark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('flowly_theme',next);
+  updateThemeIcon(!isDark);
+  renderConnections();
+}
+function updateThemeIcon(isDark) {
+  const icon = document.getElementById('theme-icon');
+  if (isDark) {
+    // Show moon icon
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    // Show sun icon
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.className='show';
+  clearTimeout(t._timer); t._timer=setTimeout(()=>{ t.className=''; },2200);
+}
+
+function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function autoTextarea(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+
+init();
+</script>
 </body>
 </html>
