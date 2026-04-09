@@ -82,4 +82,9 @@ For the best visual representation of the workspace, focus on these key views:
 <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/2240ff38-02a8-4067-b82d-ba87152b517c" />
 
 ---
+## Planify
+**A tool that converts planning data into clean, print-ready A4 layouts.**
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/d0e52b19-2ee8-4258-b135-fc905e872922" />
+
+---
 > **Note:** Drawkiboard and Flowynotes use hardware acceleration to ensure smoother performance.
