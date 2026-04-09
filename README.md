@@ -10,7 +10,8 @@
 ## Main GUI.
 
 For the best visual representation of the workspace, focus on these key views:
-<img width="1240" height="556" alt="image" src="https://github.com/user-attachments/assets/23e0c500-440a-4acf-92e4-8ae876246c6d" />
+<img width="1352" height="602" alt="image" src="https://github.com/user-attachments/assets/10d99c3f-9188-4f45-bc6b-6b2450d93815" />
+
 
 ---
 
