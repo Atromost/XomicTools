@@ -13,7 +13,8 @@ It is designed with an indie-first approach, focusing on **simplicity, efficienc
 
 A centralized workspace designed for fast access and minimal friction.
 
-<img width="1352" height="602" alt="Main UI" src="https://github.com/user-attachments/assets/10d99c3f-9188-4f45-bc6b-6b2450d93815" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/9b64f65f-3b8d-4e37-b40c-99a242c93434" />
+
 
 ---
 
@@ -151,6 +152,14 @@ Aesthetic stopwatch with live wallpaper support.
 A system that converts planning data into clean, print-ready A4 layouts.
 
 <img width="1366" height="768" alt="Planify" src="https://github.com/user-attachments/assets/d0e52b19-2ee8-4258-b135-fc905e872922" />
+
+---
+
+## ॠ MarkDown
+
+A Markdown Viewr
+
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8f8e7025-a04e-4ce3-a4df-051039f32d92" />
 
 ---
 
