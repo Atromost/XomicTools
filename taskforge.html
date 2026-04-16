@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #FF3C2F;
+    --accent-dim: rgba(255,60,47,0.15);
+    --accent-glow: rgba(255,60,47,0.35);
+    --bg: #0D0D0D;
+    --bg2: #161616;
+    --bg3: #1E1E1E;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #F2F2F2;
+    --text-muted: #888;
+    --text-dim: #555;
+    --success: #2ECC71;
+    --success-dim: rgba(46,204,113,0.12);
+    --shadow: 0 8px 40px rgba(0,0,0,0.5);
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.3);
+    --r: 16px;
+    --r-sm: 10px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  [data-theme="light"] {
+    --bg: #F5F4F0;
+    --bg2: #EDECEA;
+    --bg3: #E4E2DE;
+    --border: rgba(0,0,0,0.08);
+    --border-hover: rgba(0,0,0,0.15);
+    --text: #111;
+    --text-muted: #666;
+    --text-dim: #AAA;
+    --shadow: 0 8px 40px rgba(0,0,0,0.12);
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background var(--transition), color var(--transition);
+    overflow-x: hidden;
+  }
+
+  /* Subtle grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .logo-group { display: flex; flex-direction: column; line-height: 1; }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 0.06em;
+    color: var(--text);
+  }
+  .logo span { color: var(--accent); }
+
+  .tagline {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  .theme-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+  .theme-btn:hover { border-color: var(--border-hover); color: var(--text); transform: rotate(15deg); }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 200px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    animation: fadeUp 0.6s ease both;
+  }
+  .empty-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 20px;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+  .empty-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .empty-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  /* ── PROJECT CARD ── */
+  .project-card {
+    width: 100%;
+    max-width: 500px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.5s cubic-bezier(0.4,0,0.2,1) both;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition);
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    transition: opacity var(--transition);
+  }
+
+  .project-card.done {
+    border-color: rgba(46,204,113,0.2);
+  }
+  .project-card.done::before {
+    background: linear-gradient(90deg, var(--success), transparent);
+  }
+
+  /* Decorative bg number */
+  .card-bg-num {
+    position: absolute;
+    right: -10px; top: -10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px;
+    color: var(--text);
+    opacity: 0.025;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .project-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 8vw, 52px);
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1.05;
+    margin-bottom: 28px;
+    word-break: break-word;
+    transition: color var(--transition);
+  }
+  .project-card.done .project-name { color: var(--success); }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .metric {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 16px;
+    transition: all var(--transition);
+  }
+  .metric.accent {
+    background: var(--accent-dim);
+    border-color: rgba(255,60,47,0.25);
+  }
+  .project-card.done .metric.accent {
+    background: var(--success-dim);
+    border-color: rgba(46,204,113,0.25);
+  }
+
+  .metric-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .metric.accent .metric-label { color: var(--accent); }
+  .project-card.done .metric.accent .metric-label { color: var(--success); }
+
+  .metric-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .metric.accent .metric-value { color: var(--accent); }
+  .project-card.done .metric.accent .metric-value { color: var(--success); }
+
+  .metric-full {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .metric-full .metric-label { margin: 0; }
+  .metric-full .metric-value { font-size: 18px; }
+
+  /* ── DONE BADGE ── */
+  .done-badge {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--success-dim);
+    border: 1px solid rgba(46,204,113,0.25);
+    border-radius: 100px;
+    padding: 7px 16px;
+    color: var(--success);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    width: fit-content;
+    animation: popIn 0.3s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  .done-badge svg { width: 14px; height: 14px; }
+  .project-card.done .done-badge { display: flex; }
+
+  /* ── ACTION BUTTONS ── */
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+
+  .btn-done {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--r-sm);
+    padding: 14px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+  .btn-done:hover { transform: translateY(-1px); box-shadow: 0 6px 28px var(--accent-glow); }
+  .btn-done:active { transform: translateY(0); }
+  .btn-done svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .project-card.done .btn-done {
+    background: var(--bg3);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: default;
+  }
+  .project-card.done .btn-done:hover { transform: none; }
+
+  .btn-reset {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    width: 48px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+  .btn-reset:hover { border-color: rgba(255,60,47,0.4); color: var(--accent); }
+  .btn-reset svg { width: 16px; height: 16px; }
+
+  /* ── BOTTOM BAR ── */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    padding: 12px 16px 20px;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+
+  .input-card {
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px 16px 12px;
+    box-shadow: var(--shadow);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .input-card:focus-within {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow), 0 0 0 1px var(--border-hover);
+  }
+
+  .input-row-top {
+    margin-bottom: 10px;
+  }
+
+  .input-name {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 4px 2px;
+    placeholder-color: var(--text-dim);
+  }
+  .input-name::placeholder { color: var(--text-dim); }
+
+  .input-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 10px;
+  }
+
+  .input-row-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .date-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .date-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .input-date {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 6px 8px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition);
+    min-width: 0;
+    flex: 1;
+    max-width: 140px;
+  }
+  .input-date::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+  }
+  [data-theme="light"] .input-date::-webkit-calendar-picker-indicator { filter: none; }
+  .input-date:focus { border-color: var(--accent); }
+
+  .date-separator {
+    color: var(--text-dim);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    width: 40px; height: 40px;
+    cursor: pointer;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition);
+    box-shadow: 0 3px 12px var(--accent-glow);
+  }
+  .btn-submit:hover { transform: scale(1.06); box-shadow: 0 5px 18px var(--accent-glow); }
+  .btn-submit:active { transform: scale(0.97); }
+  .btn-submit svg { width: 16px; height: 16px; }
+
+  /* ── ERROR ── */
+  .error-msg {
+    max-width: 500px;
+    background: rgba(255,60,47,0.1);
+    border: 1px solid rgba(255,60,47,0.25);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+  .error-msg.show { display: block; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    header { padding: 14px 16px; }
+    .logo { font-size: 22px; }
+    main { padding: 24px 14px 190px; }
+    .project-card { padding: 24px 18px; }
+    .input-card { padding: 14px 12px 10px; }
+    .date-group { gap: 4px; }
+    .date-label { font-size: 9px; }
+    .input-date { font-size: 12px; padding: 5px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-group">
+    <div class="logo">TASK<span>FORGE</span></div>
+    <div class="tagline">Turn deadlines into execution.</div>
+  </div>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">
+    <!-- Moon icon (shown in dark mode) -->
+    <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <!-- Sun icon (shown in light mode) -->
+    <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  </button>
+</header>
+
+<!-- MAIN -->
+<main>
+  <!-- Empty State -->
+  <div class="empty-state" id="emptyState">
+    <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+      <line x1="8" y1="14" x2="16" y2="14"/>
+    </svg>
+    <div class="empty-title">No Project Yet</div>
+    <div class="empty-sub">Enter a project name and deadline below to get started.</div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Project Card -->
+  <div class="project-card" id="projectCard" style="display:none">
+    <div class="card-bg-num" id="cardBgNum"></div>
+
+    <div class="done-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Completed
+    </div>
+
+    <div class="card-label">Project</div>
+    <div class="project-name" id="cardName"></div>
+
+    <div class="metrics-row">
+      <div class="metric">
+        <div class="metric-label">Total Days</div>
+        <div class="metric-value" id="cardDays"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Start Date</div>
+        <div class="metric-value" id="cardStart"></div>
+      </div>
+    </div>
+
+    <div class="metric accent" style="margin-bottom:12px; padding:16px;">
+      <div class="metric-label">Midpoint Deadline</div>
+      <div class="metric-value" id="cardMid"></div>
+    </div>
+
+    <div class="metric-full">
+      <div class="metric-label">Final Deadline</div>
+      <div class="metric-value" id="cardEnd"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-done" id="btnDone">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        MARK AS DONE
+      </button>
+      <button class="btn-reset" id="btnReset" aria-label="Reset project">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/>
+          <path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- BOTTOM INPUT BAR -->
+<div class="bottom-bar">
+  <div class="input-card" id="inputCard">
+    <div class="input-row-top">
+      <input
+        type="text"
+        class="input-name"
+        id="inputName"
+        placeholder="Project name..."
+        maxlength="60"
+        autocomplete="off"
+      />
+    </div>
+    <div class="input-divider"></div>
+    <div class="input-row-bottom">
+      <div class="date-group">
+        <span class="date-label">Start</span>
+        <input type="date" class="input-date" id="inputStart" />
+      </div>
+      <span class="date-separator">→</span>
+      <div class="date-group">
+        <span class="date-label">End</span>
+        <input type="date" class="input-date" id="inputEnd" />
+      </div>
+      <button class="btn-submit" id="btnSubmit" aria-label="Create project">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── UTILS ── */
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = 'taskforge_v1';
+  const THEME_KEY   = 'taskforge_theme';
+
+  function todayStr() {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  }
+
+  function parseLocalDate(str) {
+    // Parse YYYY-MM-DD as local date (not UTC)
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function formatDate(date) {
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function formatDateShort(date) {
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
+  /* ── THEME ── */
+  const html = document.documentElement;
+  let theme = localStorage.getItem(THEME_KEY) || 'dark';
+
+  function applyTheme(t) {
+    theme = t;
+    html.setAttribute('data-theme', t);
+    $('iconMoon').style.display = t === 'dark'  ? 'block' : 'none';
+    $('iconSun').style.display  = t === 'light' ? 'block' : 'none';
+    localStorage.setItem(THEME_KEY, t);
+  }
+
+  applyTheme(theme);
+
+  $('themeBtn').addEventListener('click', () => {
+    applyTheme(theme === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ── DEFAULT DATES ── */
+  $('inputStart').value = todayStr();
+
+  /* ── STORAGE ── */
+  function saveProject(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function loadProject() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
+    catch { return null; }
+  }
+
+  function clearProject() {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  /* ── RENDER ── */
+  function renderProject(data) {
+    const { name, startStr, endStr, totalDays, midStr, done } = data;
+
+    const startDate = parseLocalDate(startStr);
+    const endDate   = parseLocalDate(endStr);
+    const midDate   = parseLocalDate(midStr);
+
+    $('emptyState').style.display = 'none';
+    $('errorMsg').classList.remove('show');
+
+    const card = $('projectCard');
+    card.style.display = 'block';
+    card.classList.toggle('done', !!done);
+
+    $('cardBgNum').textContent = totalDays;
+    $('cardName').textContent  = name;
+    $('cardDays').textContent  = totalDays + ' Days';
+    $('cardStart').textContent = formatDateShort(startDate);
+    $('cardMid').textContent   = formatDate(midDate);
+    $('cardEnd').textContent   = formatDate(endDate);
+
+    const btnDone = $('btnDone');
+    if (done) {
+      btnDone.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        COMPLETED
+      `;
+      btnDone.disabled = true;
+    } else {
+      btnDone.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        MARK AS DONE
+      `;
+      btnDone.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    const el = $('errorMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+    $('projectCard').style.display = 'none';
+    $('emptyState').style.display  = 'block';
+  }
+
+  /* ── SUBMIT ── */
+  function handleSubmit() {
+    const name     = $('inputName').value.trim();
+    const startStr = $('inputStart').value;
+    const endStr   = $('inputEnd').value;
+
+    // Validation
+    if (!name) {
+      showError('Please enter a project name.');
+      $('inputName').focus();
+      return;
+    }
+    if (!startStr) {
+      showError('Please select a start date.');
+      return;
+    }
+    if (!endStr) {
+      showError('Please select a deadline.');
+      return;
+    }
+
+    const startDate = parseLocalDate(startStr);
+    const endDate   = parseLocalDate(endStr);
+
+    if (endDate <= startDate) {
+      showError('The deadline must be after the start date.');
+      return;
+    }
+
+    // total_days = ceil((end - start) / 1 day)
+    const diffMs    = endDate - startDate;
+    const totalDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (totalDays < 3) {
+      showError('Project must span at least 3 days. Please extend the deadline.');
+      return;
+    }
+
+    // half_days = ceil(total / 2), mid = start + half_days
+    const halfDays = Math.ceil(totalDays / 2);
+    const midDate  = new Date(startDate.getTime() + halfDays * 24 * 60 * 60 * 1000);
+
+    function toStr(d) {
+      return d.toISOString().split('T')[0];
+    }
+
+    const data = {
+      name,
+      startStr,
+      endStr,
+      totalDays,
+      midStr: toStr(midDate),
+      done: false
+    };
+
+    saveProject(data);
+    renderProject(data);
+  }
+
+  /* ── MARK DONE ── */
+  $('btnDone').addEventListener('click', function () {
+    const data = loadProject();
+    if (!data || data.done) return;
+    data.done = true;
+    saveProject(data);
+    renderProject(data);
+  });
+
+  /* ── RESET ── */
+  $('btnReset').addEventListener('click', function () {
+    clearProject();
+    $('projectCard').style.display = 'none';
+    $('emptyState').style.display  = 'block';
+    $('errorMsg').classList.remove('show');
+    $('inputName').value = '';
+    $('inputStart').value = todayStr();
+    $('inputEnd').value = '';
+    $('inputName').focus();
+  });
+
+  /* ── SUBMIT BUTTON ── */
+  $('btnSubmit').addEventListener('click', handleSubmit);
+
+  /* ── ENTER KEY ── */
+  [$('inputName'), $('inputStart'), $('inputEnd')].forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSubmit();
+    });
+  });
+
+  /* ── INIT: LOAD SAVED PROJECT ── */
+  const saved = loadProject();
+  if (saved) {
+    renderProject(saved);
+  }
+
+})();
+</script>
+</body>
+</html>
